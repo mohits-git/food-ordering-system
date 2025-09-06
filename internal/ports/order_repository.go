@@ -7,7 +7,7 @@ import (
 )
 
 type OrderRepository interface {
-  SaveOrder(ctx context.Context, order domain.Order) error
-  FindOrderById(ctx context.Context, id string) (domain.Order, error)
+  SaveOrder(ctx context.Context, order domain.Order) (int, error)
+  FindOrderById(ctx context.Context, id int) (domain.Order, error)
   UpdateOrder(ctx context.Context, order domain.Order) error
 }

@@ -8,5 +8,5 @@ import (
 type InvoiceRepository interface {
 	SaveInvoice(cxt context.Context, invoice domain.Invoice) error
 	UpdateInvoice(cxt context.Context, invoice domain.Invoice) error
-	FindInvoiceById(cxt context.Context, id string) (domain.Invoice, error)
+	FindInvoiceById(cxt context.Context, id int) (domain.Invoice, error)
 }
