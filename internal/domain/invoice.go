@@ -20,23 +20,23 @@ func (p PaymentStatus) Validate() bool {
 type Invoice struct {
 	ID            int
 	OrderID       int
-	TotalAmount   float64
-	TaxAmount     float64
+	Total   float64
+	Tax     float64
 	PaymentStatus PaymentStatus
 }
 
-func NewInvoice(id int, orderID int, totalAmount, taxAmount float64, paymentStatus PaymentStatus) *Invoice {
+func NewInvoice(id int, orderID int, total, tax float64, paymentStatus PaymentStatus) *Invoice {
 	return &Invoice{
 		ID:            id,
 		OrderID:       orderID,
-		TotalAmount:   totalAmount,
-		TaxAmount:     taxAmount,
+		Total:   total,
+		Tax:     tax,
 		PaymentStatus: paymentStatus,
 	}
 }
 
 func (i *Invoice) Validate() bool {
-	if i.OrderID <= 0 || i.TotalAmount < 0 || i.TaxAmount < 0 {
+	if i.OrderID <= 0 || i.Total < 0 || i.Tax < 0 {
 		return false
 	}
 	return i.PaymentStatus.Validate()
@@ -51,5 +51,5 @@ func (i *Invoice) UpdatePaymentStatus(status PaymentStatus) bool {
 }
 
 func (i *Invoice) BillWithTax() float64 {
-	return i.TotalAmount + i.TaxAmount
+	return i.Total + i.Tax
 }

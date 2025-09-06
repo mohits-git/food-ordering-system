@@ -19,7 +19,7 @@ func NewOrder(id int, customerID int, restaurantID int) *Order {
 		return nil
 	}
 	return &Order{
-		ID:					 id,
+		ID:           id,
 		CustomerID:   customerID,
 		RestaurantID: restaurantID,
 		OrderItems:   []OrderItem{},

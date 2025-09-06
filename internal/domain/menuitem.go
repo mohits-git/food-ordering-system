@@ -1,10 +1,11 @@
 package domain
 
 type MenuItem struct {
-	ID        int
-	Name      string
-	Price     float64
-	Available bool
+	ID           int
+	Name         string
+	Price        float64
+	Available    bool
+	RestaurantID int
 }
 
 func NewMenuItem(id int, name string, price float64, available bool) *MenuItem {
@@ -17,7 +18,7 @@ func NewMenuItem(id int, name string, price float64, available bool) *MenuItem {
 }
 
 func (m *MenuItem) Validate() bool {
-	if m.Name == "" || m.Price < 0 {
+	if m.Name == "" || m.Price < 0 || m.RestaurantID <= 0 {
 		return false
 	}
 	return true
