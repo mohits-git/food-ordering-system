@@ -5,13 +5,14 @@ import (
 	"database/sql"
 
 	"github.com/mohits-git/food-ordering-system/internal/domain"
+	"github.com/mohits-git/food-ordering-system/internal/ports"
 )
 
 type UserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db *sql.DB) ports.UserRepository {
 	return &UserRepository{db: db}
 }
 
@@ -19,6 +20,17 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (domain.User,
 	var user domain.User
 	query := "SELECT id, name, email, role, password FROM users WHERE id = ?"
 	err := r.db.QueryRowContext(ctx, query, id).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.Password)
+	if err != nil {
+		err = HandleSQLiteError(err)
+		return domain.User{}, err
+	}
+	return user, nil
+}
+
+func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	var user domain.User
+	query := "SELECT id, name, email, role, password FROM users WHERE email = ?"
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.Password)
 	if err != nil {
 		err = HandleSQLiteError(err)
 		return domain.User{}, err
