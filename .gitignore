@@ -1,0 +1,9 @@
+# binaries
+/bin
+food-ordering-system
+
+# env
+.env
+
+# db
+food-ordering-system.db

@@ -12,7 +12,7 @@ import (
 var db *sql.DB
 var once sync.Once
 
-func InitDB(ctx context.Context, dsn string) error {
+func Connect(ctx context.Context, dsn string) (*sql.DB, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -23,11 +23,15 @@ func InitDB(ctx context.Context, dsn string) error {
 			panic(err)
 		}
 		db.SetMaxOpenConns(1)
+		_, err = db.ExecContext(ctx, "PRAGMA foreign_keys = ON;")
+		if err != nil {
+			panic(err)
+		}
 	})
 
-	return db.PingContext(ctx)
-}
+	if err := db.PingContext(ctx); err != nil {
+		return nil, err
+	}
 
-func GetDB() *sql.DB {
-	return db
+	return db, nil
 }
