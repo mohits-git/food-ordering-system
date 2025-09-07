@@ -22,6 +22,11 @@ func (r *Restaurant) Validate() bool {
 	if r.Name == "" || r.OwnerID <= 0 {
 		return false
 	}
+	for _, item := range r.Menu {
+		if !item.Validate() {
+			return false
+		}
+	}
 	return true
 }
 

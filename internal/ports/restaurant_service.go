@@ -7,7 +7,6 @@ import (
 )
 
 type RestaurantService interface {
-  CreateRestaurant(ctx context.Context, menuItem domain.MenuItem) error
-  GetRestaurantById(ctx context.Context, id string) (domain.Restaurant, error)
+  CreateRestaurant(ctx context.Context, restaurantName string) (int, error)
   GetAllRestaurants(ctx context.Context) ([]domain.Restaurant, error)
 }

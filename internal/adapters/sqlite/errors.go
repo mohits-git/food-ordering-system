@@ -15,7 +15,7 @@ func HandleSQLiteError(err error) error {
 			case sqlite3.ErrConstraintUnique:
 				return apperr.NewAppError(apperr.ErrConflict, "unique constraint violation", err)
 			case sqlite3.ErrConstraintForeignKey:
-				return apperr.NewAppError(apperr.ErrInvalid, "foreign key constraint violation", err)
+				return apperr.NewAppError(apperr.ErrConflict, "foreign key constraint violation", err)
 			default:
 				return apperr.NewAppError(apperr.ErrConflict, "constraint violation", err)
 			}
