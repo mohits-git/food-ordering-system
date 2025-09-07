@@ -3,29 +3,33 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/mohits-git/food-ordering-system/internal/domain"
 	"github.com/mohits-git/food-ordering-system/internal/ports"
-	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
 )
 
 type UserSerivce struct {
-	repo ports.UserRepository
+	repo           ports.UserRepository
+	passwordHasher ports.PasswordHasher
 }
 
-func NewUserService(repo ports.UserRepository) *UserSerivce {
-	return &UserSerivce{repo: repo}
+func NewUserService(repo ports.UserRepository, passwordHasher ports.PasswordHasher) *UserSerivce {
+	return &UserSerivce{
+		repo:           repo,
+		passwordHasher: passwordHasher,
+	}
 }
 
 func (s *UserSerivce) CreateUser(ctx context.Context, user domain.User) (int, error) {
-	exist, err := s.repo.FindUserByEmail(ctx, user.Email)
-	if err == nil && exist.ID != 0 {
-		return 0, apperr.NewAppError(apperr.ErrConflict, fmt.Sprintf("user with email %s already exists", user.Email), err)
+	hashedPassword, err := s.passwordHasher.HashPassword(user.Password)
+	if err != nil {
+		return 0, err
 	}
+	user.Password = hashedPassword
+
 	id, err := s.repo.SaveUser(ctx, user)
 	if err != nil {
-		return 0, apperr.NewAppError(apperr.ErrInternal, "failed to create user", err)
+		return 0, err
 	}
 	return id, nil
 }

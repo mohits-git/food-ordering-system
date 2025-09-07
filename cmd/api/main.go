@@ -5,8 +5,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mohits-git/food-ordering-system/internal/adapters/bcrypt"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/handlers"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/router"
+	"github.com/mohits-git/food-ordering-system/internal/adapters/jwttoken"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/sqlite"
 	"github.com/mohits-git/food-ordering-system/internal/services"
 )
@@ -25,20 +27,30 @@ func main() {
 		log.Println("Failed to migrate the database:", err)
 		panic(err)
 	}
-
 	log.Println("Database connected and migrated successfully")
+
+	// Initialize utilities
+	tokenProvider := jwttoken.NewJWTService("secret-key", "app-name", "app-audience")
+	bcryptHasher := bcrypt.NewBcryptPasswordHasher(12)
 
 	// Initialize repositories
 	userRepo := sqlite.NewUserRepository(db)
 
 	// Initialize services
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(userRepo, bcryptHasher)
+	authService := services.NewAuthenticationService(userRepo, tokenProvider, bcryptHasher)
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
+	authHandler := handlers.NewAuthHandler(authService)
+
+	// middlewares
+	authMiddleware := handlers.NewAuthMiddleware(tokenProvider)
 
 	mux := router.NewRouter(
+		authMiddleware,
 		userHandler,
+		authHandler,
 	)
 
 	log.Println("Starting server on :8080")

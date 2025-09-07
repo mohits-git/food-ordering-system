@@ -7,7 +7,9 @@ import (
 )
 
 func NewRouter(
+	authMiddleware *handlers.AuthMiddleware,
 	userHandler *handlers.UserHandler,
+	authHandler *handlers.AuthHandler,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -21,6 +23,8 @@ func NewRouter(
 	mux.HandleFunc("GET /api/users/{id}", userHandler.HandleGetUserById)
 
 	// auth routes
+	mux.HandleFunc("POST /api/auth/login", authHandler.HandleLogin)
+	mux.HandleFunc("POST /api/auth/logout", authMiddleware.WithToken(authHandler.HandleLogout))
 
 	// restaurants routes
 

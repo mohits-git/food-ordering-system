@@ -33,3 +33,11 @@ func writeResponse[T any](w http.ResponseWriter, statusCode int, msg string, dat
 func writeError(w http.ResponseWriter, statusCode int, msg string) {
 	writeResponse(w, statusCode, msg, struct{}{})
 }
+
+func getBearerToken(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		return authHeader[7:]
+	}
+	return ""
+}
