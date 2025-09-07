@@ -1,6 +1,7 @@
 package domain
 
 type PaymentStatus string
+
 const (
 	Paid       PaymentStatus = "paid"
 	Unpaid     PaymentStatus = "unpaid"
@@ -20,8 +21,8 @@ func (p PaymentStatus) Validate() bool {
 type Invoice struct {
 	ID            int
 	OrderID       int
-	Total   float64
-	Tax     float64
+	Total         float64
+	Tax           float64
 	PaymentStatus PaymentStatus
 }
 
@@ -29,8 +30,8 @@ func NewInvoice(id int, orderID int, total, tax float64, paymentStatus PaymentSt
 	return Invoice{
 		ID:            id,
 		OrderID:       orderID,
-		Total:   total,
-		Tax:     tax,
+		Total:         total,
+		Tax:           tax,
 		PaymentStatus: paymentStatus,
 	}
 }

@@ -5,17 +5,12 @@ Food Ordering System built with Golang
 - Add menu items with name, price, availability
 - Place an order with multiple items
 - Generate a bill with tax
-- Update menu item availability
-
-## Design
+- Update menu item availability ## Design
 
 ## Entities
 
 ### Menu
-- menu will just be a list of items
-
-### MenuItem
-- item contains: name, price, availability
+- menu will just be a list of items ### MenuItem item contains: name, price, availability
 
 ### Order
 - order is a struct with a list of menu-items x quantity and customer-id (optional)
@@ -50,23 +45,27 @@ Food Ordering System built with Golang
 ### Restaurants
 - `GET /api/restaurants`
 - `POST /api/restaurants`
-- `GET /api/restaurants/{id}`
-- `GET /api/restaurants/{id}/items`
-- `POST /api/restaurants/{id}/items`
+<!-- - `GET /api/restaurants/{id}` -->
 <!-- - `PUT /api/restaurants/{id}` -->
 <!-- - `DELETE /api/restaurants/{id}` -->
 
 ### Menu Items
-- `GET /api/items/{id}`
+- `GET /api/restaurants/{id}/items`
+- `POST /api/restaurants/{id}/items`
 - `PATCH /api/items/{id}` (availability)
+<!-- - `GET /api/items/{id}` -->
 <!-- - `PUT /api/items/{id}` -->
 <!-- - `DELETE /api/items/{id}` -->
 
 ### Orders
-- `GET /api/orders?user_id=<id>`
 - `POST /api/orders`
-- `GET /api/orders/{id}`
 - `POST /api/orders/{id}/items`
-- `GET /api/orders/{id}/invoice`
+- `GET /api/orders/{id}`
+<!-- - `GET /api/orders?user_id=<id>` -->
 <!-- - `PATCH /api/orders/{id}` -->
 <!-- - `DELETE /api/orders/{id}` -->
+
+## Invoice
+- `POST /api/orders/{id}/invoices`
+- `POST /api/invoices/{id}/pay`
+- `GET /api/invoices/{id}`

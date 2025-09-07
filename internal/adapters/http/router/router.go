@@ -13,6 +13,7 @@ func NewRouter(
 	restaurantHandler *handlers.RestaurantHandler,
 	menuItemHandler *handlers.MenuItemHandler,
 	orderHandler *handlers.OrdersHandler,
+	invoiceHandler *handlers.InvoiceHandler,
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -44,6 +45,9 @@ func NewRouter(
 	mux.HandleFunc("POST /api/orders/{id}/items", authMiddleware.Authenticated(orderHandler.HandleAddOrderItem))
 
 	// invoice routes
+	mux.HandleFunc("GET /api/invoices/{id}", authMiddleware.Authenticated(invoiceHandler.HandleGetInvoice))
+	mux.HandleFunc("POST /api/orders/{id}/invoices", authMiddleware.Authenticated(invoiceHandler.HandleCreateInvoice))
+	mux.HandleFunc("POST /api/invoices/{id}/pay", authMiddleware.Authenticated(invoiceHandler.HandleInvoicePayment))
 
 	return mux
 }
