@@ -6,7 +6,7 @@ import (
 )
 
 type InvoiceRepository interface {
-	SaveInvoice(cxt context.Context, invoice domain.Invoice) error
-	UpdateInvoice(cxt context.Context, invoice domain.Invoice) error
+	SaveInvoice(cxt context.Context, invoice domain.Invoice) (int, error)
 	FindInvoiceById(cxt context.Context, id int) (domain.Invoice, error)
+	ChangeInvoiceStatus(cxt context.Context, invoice domain.Invoice) error
 }

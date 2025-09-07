@@ -10,5 +10,4 @@ type OrderService interface {
   CreateOrder(ctx context.Context, order domain.Order) (int, error)
   GetOrderById(ctx context.Context, id int) (domain.Order, error)
   AddOrderItem(ctx context.Context, orderId int, item domain.OrderItem) error
-  RemoveOrderItem(ctx context.Context, orderId int, itemId string) error
 }
