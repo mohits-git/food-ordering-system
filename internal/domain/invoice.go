@@ -25,8 +25,8 @@ type Invoice struct {
 	PaymentStatus PaymentStatus
 }
 
-func NewInvoice(id int, orderID int, total, tax float64, paymentStatus PaymentStatus) *Invoice {
-	return &Invoice{
+func NewInvoice(id int, orderID int, total, tax float64, paymentStatus PaymentStatus) Invoice {
+	return Invoice{
 		ID:            id,
 		OrderID:       orderID,
 		Total:   total,

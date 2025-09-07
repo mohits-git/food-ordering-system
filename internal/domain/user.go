@@ -23,8 +23,8 @@ type User struct {
 	Password string
 }
 
-func NewUser(id int, name, email, password string, role UserRole) *User {
-	return &User{
+func NewUser(id int, name, email, password string, role UserRole) User {
+	return User{
 		ID:       id,
 		Name:     name,
 		Email:    email,

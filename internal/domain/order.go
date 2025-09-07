@@ -14,11 +14,8 @@ type OrderItem struct {
 	Quantity   int
 }
 
-func NewOrder(id int, customerID int, restaurantID int) *Order {
-	if customerID <= 0 || restaurantID <= 0 {
-		return nil
-	}
-	return &Order{
+func NewOrder(id int, customerID int, restaurantID int) Order {
+	return Order{
 		ID:           id,
 		CustomerID:   customerID,
 		RestaurantID: restaurantID,

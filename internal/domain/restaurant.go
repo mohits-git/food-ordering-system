@@ -9,8 +9,8 @@ type Restaurant struct {
 	Menu    []MenuItem
 }
 
-func NewRestaurant(id int, name string, ownerID int) *Restaurant {
-	return &Restaurant{
+func NewRestaurant(id int, name string, ownerID int) Restaurant {
+	return Restaurant{
 		ID:      id,
 		Name:    name,
 		OwnerID: ownerID,

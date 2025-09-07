@@ -8,8 +8,8 @@ type MenuItem struct {
 	RestaurantID int
 }
 
-func NewMenuItem(id int, name string, price float64, available bool) *MenuItem {
-	return &MenuItem{
+func NewMenuItem(id int, name string, price float64, available bool) MenuItem {
+	return MenuItem{
 		ID:        id,
 		Name:      name,
 		Price:     price,
