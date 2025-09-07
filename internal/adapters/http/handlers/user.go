@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/dtos"
 	"github.com/mohits-git/food-ordering-system/internal/domain"
@@ -49,10 +47,9 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) HandleGetUserById(w http.ResponseWriter, r *http.Request) {
-	userIdParam := r.PathValue("id")
-	userId, err := strconv.Atoi(userIdParam)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid user id: %s", userIdParam))
+	userId := getIdFromPath(r, "id")
+	if userId <= 0 {
+		writeError(w, http.StatusBadRequest, "invalid user id")
 		return
 	}
 

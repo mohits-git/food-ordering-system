@@ -48,3 +48,16 @@ func (r *RestaurantRepository) FindAllRestaurants(ctx context.Context) ([]domain
   }
   return restaurants, nil
 }
+
+func (r *RestaurantRepository) FindRestaurantById(ctx context.Context, id int) (domain.Restaurant, error) {
+	query := `SELECT id, name, owner_id FROM restaurants WHERE id = ?`
+	var restaurant domain.Restaurant
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Restaurant{}, nil
+		}
+		return domain.Restaurant{}, HandleSQLiteError(err)
+	}
+	return restaurant, nil
+}

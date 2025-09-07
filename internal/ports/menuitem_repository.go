@@ -7,8 +7,7 @@ import (
 
 type MenuItemRepository interface {
   SaveMenuItem(cxt context.Context, item domain.MenuItem) (int, error)
-  UpdateMenuItem(cxt context.Context, item domain.MenuItem) error
+  UpdateMenuItemAvailability(cxt context.Context, id int, available bool) error
+  FindMenuItemsByRestaurantId(cxt context.Context, restaurantId int) ([]domain.MenuItem, error)
   FindMenuItemById(cxt context.Context, id int) (domain.MenuItem, error)
-  FindMenuItemsByRestaurantId(cxt context.Context, restaurantId string) ([]domain.MenuItem, error)
-  FindAvailableMenuItemsByRestaurantId(cxt context.Context, restaurantId string) ([]domain.MenuItem, error)
 }

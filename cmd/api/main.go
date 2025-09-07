@@ -36,25 +36,30 @@ func main() {
 	// Initialize repositories
 	userRepo := sqlite.NewUserRepository(db)
 	restaurantRepo := sqlite.NewRestaurantRepository(db)
+	menuItemRepo := sqlite.NewMenuItemRepository(db)
 
 	// Initialize services
 	userService := services.NewUserService(userRepo, bcryptHasher)
 	authService := services.NewAuthenticationService(userRepo, tokenProvider, bcryptHasher)
 	restaurantService := services.NewRestaurantService(restaurantRepo)
+	menuItemService := services.NewMenuItemsService(menuItemRepo, restaurantRepo)
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
 	restaurantHandler := handlers.NewRestaurantHandler(restaurantService)
+	menuItemHandler := handlers.NewMenuItemHandler(menuItemService)
 
 	// middlewares
 	authMiddleware := handlers.NewAuthMiddleware(tokenProvider)
 
+	// Initialize router
 	mux := router.NewRouter(
 		authMiddleware,
 		userHandler,
 		authHandler,
 		restaurantHandler,
+		menuItemHandler,
 	)
 
 	log.Println("Starting server on :8080")

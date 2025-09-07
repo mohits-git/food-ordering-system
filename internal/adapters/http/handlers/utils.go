@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/dtos"
 	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
@@ -40,4 +41,16 @@ func getBearerToken(r *http.Request) string {
 		return authHeader[7:]
 	}
 	return ""
+}
+
+func getIdFromPath(r *http.Request, key string) int {
+	idParam := r.PathValue(key)
+	if idParam == "" {
+		return 0
+	}
+	id, err := strconv.Atoi(idParam)
+	if err != nil || id <= 0 {
+		return 0
+	}
+	return id
 }
