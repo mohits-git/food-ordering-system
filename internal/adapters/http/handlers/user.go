@@ -44,14 +44,8 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := dtos.NewResponse(
-		http.StatusCreated,
-		"user created successfully",
-		dtos.CreateUserResponse{
-			UserID: userId,
-		},
-	)
-	encodeJson(w, http.StatusCreated, resp)
+	resp := dtos.CreateUserResponse{UserID: userId}
+	writeResponse(w, http.StatusCreated, "user created successfully", resp)
 }
 
 func (h *UserHandler) HandleGetUserById(w http.ResponseWriter, r *http.Request) {
@@ -71,15 +65,11 @@ func (h *UserHandler) HandleGetUserById(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	resp := dtos.NewResponse(
-		http.StatusOK,
-		"user fetched successfully",
-		dtos.GetUserResponse{
-			UserID: user.ID,
-			Name:   user.Name,
-			Email:  user.Email,
-			Role:   string(user.Role),
-		},
-	)
-	encodeJson(w, http.StatusOK, resp)
+	resp := dtos.GetUserResponse{
+		UserID: user.ID,
+		Name:   user.Name,
+		Email:  user.Email,
+		Role:   string(user.Role),
+	}
+	writeResponse(w, http.StatusOK, "user fetched successfully", resp)
 }
