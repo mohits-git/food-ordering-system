@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 
+	"github.com/mohits-git/food-ordering-system/internal/adapters/http/handlers"
+	"github.com/mohits-git/food-ordering-system/internal/adapters/http/router"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/sqlite"
 	"github.com/mohits-git/food-ordering-system/internal/services"
 )
@@ -30,5 +33,16 @@ func main() {
 
 	// Initialize services
 	userService := services.NewUserService(userRepo)
-	_ = userService
+
+	// Initialize handlers
+	userHandler := handlers.NewUserHandler(userService)
+
+	mux := router.NewRouter(
+		userHandler,
+	)
+
+	log.Println("Starting server on :8080")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatal("Server failed to start:", err)
+	}
 }

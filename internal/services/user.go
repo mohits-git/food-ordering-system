@@ -7,6 +7,7 @@ import (
 
 	"github.com/mohits-git/food-ordering-system/internal/domain"
 	"github.com/mohits-git/food-ordering-system/internal/ports"
+	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
 )
 
 type UserSerivce struct {
@@ -20,11 +21,11 @@ func NewUserService(repo ports.UserRepository) *UserSerivce {
 func (s *UserSerivce) CreateUser(ctx context.Context, user domain.User) (int, error) {
 	exist, err := s.repo.FindUserByEmail(ctx, user.Email)
 	if err == nil && exist.ID != 0 {
-		return 0, fmt.Errorf("user already exists with id: %d", user.ID)
+		return 0, apperr.NewAppError(apperr.ErrConflict, fmt.Sprintf("user with email %s already exists", user.Email), err)
 	}
 	id, err := s.repo.SaveUser(ctx, user)
 	if err != nil {
-		return 0, errors.New("failed to create user: " + err.Error())
+		return 0, apperr.NewAppError(apperr.ErrInternal, "failed to create user", err)
 	}
 	return id, nil
 }
