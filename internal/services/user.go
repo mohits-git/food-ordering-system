@@ -6,6 +6,7 @@ import (
 
 	"github.com/mohits-git/food-ordering-system/internal/domain"
 	"github.com/mohits-git/food-ordering-system/internal/ports"
+	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
 )
 
 type UserSerivce struct {
@@ -21,6 +22,10 @@ func NewUserService(repo ports.UserRepository, passwordHasher ports.PasswordHash
 }
 
 func (s *UserSerivce) CreateUser(ctx context.Context, user domain.User) (int, error) {
+	if ok := user.Validate(); !ok {
+		return 0, apperr.NewAppError(apperr.ErrInvalid, "invalid user data", nil)
+	}
+
 	hashedPassword, err := s.passwordHasher.HashPassword(user.Password)
 	if err != nil {
 		return 0, err
