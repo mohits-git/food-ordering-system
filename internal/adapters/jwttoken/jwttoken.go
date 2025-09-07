@@ -5,6 +5,7 @@ import (
 
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/mohits-git/food-ordering-system/internal/domain"
+	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
 	"github.com/mohits-git/food-ordering-system/internal/utils/authctx"
 )
 
@@ -39,7 +40,7 @@ func (s *JWTService) GenerateToken(claims authctx.UserClaims) (string, error) {
 func (s *JWTService) ValidateToken(tokenString string) (authctx.UserClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrTokenMalformed
+			return nil, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token", jwt.ErrTokenMalformed)
 		}
 		return []byte(s.secretKey), nil
 	})
@@ -48,15 +49,15 @@ func (s *JWTService) ValidateToken(tokenString string) (authctx.UserClaims, erro
 	}
 
 	if !token.Valid {
-		return authctx.UserClaims{}, jwt.ErrTokenMalformed
+		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token", jwt.ErrTokenMalformed)
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return authctx.UserClaims{}, jwt.ErrTokenInvalidClaims
+		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token claims", jwt.ErrTokenInvalidClaims)
 	}
 	if claims["iss"] != s.issuer || claims["aud"] != s.audience {
-		return authctx.UserClaims{}, jwt.ErrTokenInvalidClaims
+		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token issuer or audience", jwt.ErrTokenInvalidClaims)
 	}
 
 	userClaims, err := s.ExtractClaims(claims)
@@ -64,18 +65,18 @@ func (s *JWTService) ValidateToken(tokenString string) (authctx.UserClaims, erro
 }
 
 func (s *JWTService) ExtractClaims(claims jwt.MapClaims) (authctx.UserClaims, error) {
-	userID, ok := claims["user_id"].(int)
+	userID, ok := claims["user_id"].(float64)
 	if !ok {
-		return authctx.UserClaims{}, jwt.ErrTokenInvalidClaims
+		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid user ID in token claims", jwt.ErrTokenInvalidClaims)
 	}
 
-	role, ok := claims["role"].(domain.UserRole)
+	role, ok := claims["role"].(string)
 	if !ok {
-		return authctx.UserClaims{}, jwt.ErrTokenInvalidClaims
+		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid role in token claims", jwt.ErrTokenInvalidClaims)
 	}
 
 	return authctx.UserClaims{
-		UserID: userID,
-		Role:   role,
+		UserID: int(userID),
+		Role:   domain.UserRole(role),
 	}, nil
 }

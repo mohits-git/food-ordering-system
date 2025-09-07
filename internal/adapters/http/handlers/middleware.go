@@ -44,6 +44,12 @@ func (m *AuthMiddleware) WithToken(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		_, err := m.tokenProvider.ValidateToken(token)
+		if err != nil {
+			writeError(w, http.StatusUnauthorized, "invalid token")
+			return
+		}
+
 		ctx := authctx.WithToken(r.Context(), token)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
