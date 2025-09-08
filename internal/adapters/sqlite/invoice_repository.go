@@ -62,7 +62,7 @@ func (r *InvoiceRepository) FindInvoicesByOrderId(ctx context.Context, orderId i
 	}
 	defer rows.Close()
 
-	var invoices []domain.Invoice
+	invoices := []domain.Invoice{}
 	for rows.Next() {
 		var invoice domain.Invoice
 		var total int

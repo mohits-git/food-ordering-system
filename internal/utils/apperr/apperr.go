@@ -16,7 +16,8 @@ func (e *AppError) Error() string {
 type AppErrorCode int
 
 const (
-	ErrNotFound AppErrorCode = iota + 1
+	ErrNone AppErrorCode = iota
+	ErrNotFound
 	ErrUnauthorized
 	ErrForbidden
 	ErrConflict

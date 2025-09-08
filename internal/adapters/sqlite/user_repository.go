@@ -41,8 +41,7 @@ func (r *UserRepository) SaveUser(ctx context.Context, user domain.User) (int, e
 	query := "INSERT INTO users (name, email, role, password) VALUES (?, ?, ?, ?)"
 	res, err := r.db.ExecContext(ctx, query, user.Name, user.Email, user.Role, user.Password)
 	if err != nil {
-		err = HandleSQLiteError(err)
-		return 0, err
+		return 0, HandleSQLiteError(err)
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
