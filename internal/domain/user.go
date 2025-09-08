@@ -1,6 +1,7 @@
 package domain
 
 type UserRole string
+
 const (
 	CUSTOMER UserRole = "customer"
 	OWNER    UserRole = "owner"
@@ -38,16 +39,4 @@ func (u *User) Validate() bool {
 		return false
 	}
 	return u.Role.IsValid()
-}
-
-func (u *User) IsAdmin() bool {
-	return u.Role == ADMIN
-}
-
-func (u *User) IsOwner() bool {
-	return u.Role == OWNER
-}
-
-func (u *User) IsCustomer() bool {
-	return u.Role == CUSTOMER
 }

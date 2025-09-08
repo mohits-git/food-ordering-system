@@ -10,10 +10,10 @@ type MenuItem struct {
 
 func NewMenuItem(id int, name string, price float64, available bool, restaurantId int) MenuItem {
 	return MenuItem{
-		ID:        id,
-		Name:      name,
-		Price:     price,
-		Available: available,
+		ID:           id,
+		Name:         name,
+		Price:        price,
+		Available:    available,
 		RestaurantID: restaurantId,
 	}
 }
