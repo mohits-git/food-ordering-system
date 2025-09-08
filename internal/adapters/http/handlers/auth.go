@@ -26,8 +26,12 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.authService.Login(r.Context(), loginRequest.Email, loginRequest.Password)
 	if err != nil {
-		if apperr.IsUnauthorizedError(err) {
+		if apperr.IsNotFoundError(err) {
 			writeError(w, http.StatusUnauthorized, "invalid email or password")
+		} else if apperr.IsUnauthorizedError(err) {
+			writeError(w, http.StatusUnauthorized, "invalid email or password")
+		} else if apperr.IsInvalidError(err) {
+			writeError(w, http.StatusBadRequest, "invalid inputs")
 		} else {
 			writeError(w, http.StatusInternalServerError, "internal server error")
 		}

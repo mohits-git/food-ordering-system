@@ -32,8 +32,7 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (dom
 	query := "SELECT id, name, email, role, password FROM users WHERE email = ?"
 	err := r.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.Password)
 	if err != nil {
-		err = HandleSQLiteError(err)
-		return domain.User{}, err
+		return domain.User{}, HandleSQLiteError(err)
 	}
 	return user, nil
 }

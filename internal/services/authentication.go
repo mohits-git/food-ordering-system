@@ -29,9 +29,6 @@ func NewAuthenticationService(
 func (s *AuthenticationService) Login(ctx context.Context, email, password string) (token string, err error) {
 	user, err := s.userRepo.FindUserByEmail(ctx, email)
 	if err != nil {
-		if apperr.IsNotFoundError(err) {
-			return "", apperr.NewAppError(apperr.ErrUnauthorized, "invalid email or password", nil)
-		}
 		return "", err
 	}
 
