@@ -225,7 +225,44 @@ func (h *Handlers) HandleUpdateMenuItemAvailability(token string) {
 	fmt.Println("Menu item availability updated successfully.")
 }
 
-func (h *Handlers) HandleCreateOrder(token string) {
+func (h *Handlers) HandlePlaceOrder(token string) {
+	fmt.Println("--------- Choose Restaurant ----------")
+	h.HandleViewRestaurants()
+	fmt.Printf("\n--------------------------------------\n\n")
+
+	orderId := h.HandleCreateOrder(token)
+	if orderId == 0 {
+		return
+	}
+
+	confirmString := ""
+	fmt.Printf("\nConfirm Order? (yes/no)")
+	fmt.Scanln(&confirmString)
+	if confirmString != "yes" {
+		fmt.Println("Order Canceled")
+		return
+	}
+
+	invoiceId, toPay := h.HandlePlaceOrderAndGetBill(orderId, token)
+	if toPay == 0 {
+		return
+	}
+
+	fmt.Printf("\nPlease Pay %.2f\n", toPay)
+	fmt.Printf("Confirm (yes/no)")
+	fmt.Scanln(&confirmString)
+	if confirmString != "yes" {
+		fmt.Println("Order Canceled")
+	}
+
+	if err := h.HandlePayBill(token, invoiceId, toPay); err != nil {
+		return
+	}
+
+	fmt.Printf("\n\nThank You For Ordering. Enjoy your food ^_^\n")
+}
+
+func (h *Handlers) HandleCreateOrder(token string) int {
 	var restaurantId int
 
 	// enter restaurant ID
@@ -233,7 +270,9 @@ func (h *Handlers) HandleCreateOrder(token string) {
 	fmt.Scanln(&restaurantId)
 
 	// print restaurant menu items
+	fmt.Printf("\n------------ Restaurant Menu -------------\n")
 	h.handleViewMenuItemsByRestaurantId(restaurantId)
+	fmt.Printf("--------------------------------------------\n\n")
 
 	// loop to add menu items to order
 	orderItems := []domain.OrderItem{}
@@ -253,16 +292,17 @@ func (h *Handlers) HandleCreateOrder(token string) {
 			Quantity:   quantity,
 		})
 
-		fmt.Println("Menu item added to order successfully.")
+		fmt.Printf("Menu item added to order successfully.\n\n")
 	}
 
 	orderID, err := h.apiClient.PostOrder(restaurantId, orderItems, token)
 	if err != nil {
 		fmt.Println("Error while creating order:", err)
-		return
+		return 0
 	}
 
 	fmt.Printf("Order created successfully with ID: %d\n", orderID)
+	return orderID
 }
 
 func (h *Handlers) HandleAddMenuItemToOrder(token string) {
@@ -285,43 +325,32 @@ func (h *Handlers) HandleAddMenuItemToOrder(token string) {
 	fmt.Println("Menu item added to order successfully.")
 }
 
-func (h *Handlers) HandlePlaceOrderAndGetBill(token string) {
-	var orderId int
-
-	fmt.Println("Enter Order ID to place:")
-	fmt.Scanln(&orderId)
-
+func (h *Handlers) HandlePlaceOrderAndGetBill(orderId int, token string) (int, float64) {
 	invoiceId, err := h.apiClient.PostCreateInvoice(orderId, token)
 	if err != nil {
 		fmt.Println("Error while placing order:", err)
-		return
+		return 0, 0
 	}
 
 	bill, err := h.apiClient.GetInvoiceById(invoiceId, token)
 	if err != nil {
 		fmt.Println("Error while fetching invoice:", err)
-		return
+		return 0, 0
 	}
 
-	fmt.Printf("Order placed successfully.\nInvoice ID: %d, Amount: %.2f, Tax: %.2f, Total to Pay: %.2f, Payment Status: %s\n", bill.ID, bill.Total, bill.Tax, bill.ToPay, bill.PaymentStatus)
+	fmt.Printf("Order placed successfully.\n Invoice ID: %d\n Amount: %.2f\n Tax: %.2f\n Total to Pay: %.2f\n Payment Status: %s\n\n", bill.ID, bill.Total, bill.Tax, bill.ToPay, bill.PaymentStatus)
+	return bill.ID, bill.ToPay
 }
 
-func (h *Handlers) HandlePayBill(token string) {
-	var invoiceId int
-	var amount float64
-
-	fmt.Println("Enter Invoice ID to pay:")
-	fmt.Scanln(&invoiceId)
-	fmt.Println("Enter amount to pay:")
-	fmt.Scanln(&amount)
-
+func (h *Handlers) HandlePayBill(token string, invoiceId int, amount float64) error {
 	err := h.apiClient.PostPayInvoice(invoiceId, amount, token)
 	if err != nil {
 		fmt.Println("Error while paying invoice:", err)
-		return
+		return err
 	}
 
-	fmt.Println("Invoice paid successfully.")
+	fmt.Println("Bill paid successfully.")
+	return nil
 }
 
 func (h *Handlers) HandleGetInvoiceById(token string) {

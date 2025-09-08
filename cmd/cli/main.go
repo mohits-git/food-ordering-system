@@ -96,38 +96,40 @@ func whenCustomerLoggedIn(handlers *handlers.Handlers) {
 	case 2:
 		handlers.HandleViewRestaurantMenuItems()
 	case 3:
-		handlers.HandleCreateOrder(jwtToken)
+		handlers.HandlePlaceOrder(jwtToken)
 	case 4:
-		handlers.HandleAddMenuItemToOrder(jwtToken)
-	case 5:
-		handlers.HandlePlaceOrderAndGetBill(jwtToken)
-	case 6:
-		handlers.HandlePayBill(jwtToken)
-	case 7:
-		handlers.HandleGetInvoiceById(jwtToken)
-	case 8:
 		handlers.HandleLogout(jwtToken)
 		jwtToken = ""
 		userClaims = authctx.UserClaims{}
 	}
+
+	// case 4:
+	// 	handlers.HandleAddMenuItemToOrder(jwtToken)
+	// case 5:
+	// 	handlers.HandlePlaceOrderAndGetBill(jwtToken)
+	// case 6:
+	// 	handlers.HandlePayBill(jwtToken)
+	// case 7:
+	// 	handlers.HandleGetInvoiceById(jwtToken)
 }
 
 func printCustomerMenu() {
 	menu := `
-	Welcome	Customer!
- 
-	Available actions:
-	0. Exit
-	1. View Restaurants
-	2. View Restaurants Menu Items
-	3. Create Order
-	4. Add Menu Item to Order
-	5. Place Order and Get Bill
-	6. Pay for Bill
-	7. Get Bill by Id
-	8. Logout
+  Welcome Customer!
+  
+  Available actions:
+  0. Exit
+  1. View Restaurants
+  2. View Restaurants Menu Items
+  3. Place Order
+  4. Logout
  
 `
+	// 4. Add Menu Item to Order
+	// 5. Place Order and Get Bill
+	// 6. Pay for Bill
+	// 7. Get Bill by Id
+
 	fmt.Println(menu)
 }
 
