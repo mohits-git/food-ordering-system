@@ -54,6 +54,22 @@ func (s *InvoiceService) calculateTax(amount float64) float64 {
 	return amount * 0.10 // 10% tax
 }
 
+func (s *InvoiceService) cancelInvoices(ctx context.Context, orderId int) error {
+	allInvoices, err := s.invoiceRepo.FindInvoicesByOrderId(ctx, orderId)
+	if err != nil {
+		return err
+	}
+	for _, inv := range allInvoices {
+		if inv.PaymentStatus == domain.Unpaid {
+			err := s.invoiceRepo.ChangeInvoiceStatus(ctx, inv.ID, domain.Cancelled)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (s *InvoiceService) getOrderById(cxt context.Context, orderId int) (domain.Order, error) {
 	if orderId <= 0 {
 		return domain.Order{}, apperr.NewAppError(apperr.ErrInvalid, "invalid order id", nil)
@@ -70,10 +86,10 @@ func (s *InvoiceService) getOrderById(cxt context.Context, orderId int) (domain.
 	return order, nil
 }
 
-func (s *InvoiceService) GenerateInvoice(cxt context.Context, orderId int) (domain.Invoice, error) {
-	order, err := s.getOrderById(cxt, orderId)
+func (s *InvoiceService) GenerateInvoice(ctx context.Context, orderId int) (domain.Invoice, error) {
+	order, err := s.getOrderById(ctx, orderId)
 
-	user, ok := authctx.UserClaimsFromCtx(cxt)
+	user, ok := authctx.UserClaimsFromCtx(ctx)
 	if !ok {
 		return domain.Invoice{}, apperr.NewAppError(apperr.ErrUnauthorized, "user not authenticated", nil)
 	}
@@ -81,7 +97,7 @@ func (s *InvoiceService) GenerateInvoice(cxt context.Context, orderId int) (doma
 		return domain.Invoice{}, apperr.NewAppError(apperr.ErrForbidden, "only customers can generate invoices", nil)
 	}
 
-	restaurantItemsMap, err := s.getRestaurantItemsMap(cxt, order.RestaurantID)
+	restaurantItemsMap, err := s.getRestaurantItemsMap(ctx, order.RestaurantID)
 	if err != nil {
 		return domain.Invoice{}, err
 	}
@@ -91,6 +107,9 @@ func (s *InvoiceService) GenerateInvoice(cxt context.Context, orderId int) (doma
 		return domain.Invoice{}, apperr.NewAppError(apperr.ErrInvalid, "invalid order data, or item not available", nil)
 	}
 
+	// update other invoices for this order to be cancelled
+	s.cancelInvoices(ctx, orderId)
+
 	// Create an invoice based on the order details
 	total := order.TotalPrice(restaurantItemsMap)
 	tax := s.calculateTax(total)
@@ -98,15 +117,15 @@ func (s *InvoiceService) GenerateInvoice(cxt context.Context, orderId int) (doma
 		OrderID:       order.ID,
 		Total:         total,
 		Tax:           tax,
-		PaymentStatus: "Pending",
+		PaymentStatus: domain.Unpaid,
 	}
 
-	id, err := s.invoiceRepo.SaveInvoice(cxt, invoice)
+	id, err := s.invoiceRepo.SaveInvoice(ctx, invoice)
 	if err != nil {
 		return domain.Invoice{}, err
 	}
 
-	savedInvoice, err := s.invoiceRepo.FindInvoiceById(cxt, id)
+	savedInvoice, err := s.invoiceRepo.FindInvoiceById(ctx, id)
 	if err != nil {
 		return domain.Invoice{}, err
 	}
@@ -172,6 +191,10 @@ func (s *InvoiceService) DoInvoicePayment(cxt context.Context, invoiceId int, pa
 	}
 	if order.CustomerID != user.UserID {
 		return apperr.NewAppError(apperr.ErrForbidden, "access to the invoice is forbidden", nil)
+	}
+
+	if invoice.PaymentStatus == domain.Paid {
+		return apperr.NewAppError(apperr.ErrInvalid, "invalid request", nil)
 	}
 
 	if payment < invoice.BillWithTax() {

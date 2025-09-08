@@ -53,3 +53,30 @@ func (r *InvoiceRepository) ChangeInvoiceStatus(cxt context.Context, invoiceId i
 	}
 	return nil
 }
+
+func (r *InvoiceRepository) FindInvoicesByOrderId(ctx context.Context, orderId int) ([]domain.Invoice, error) {
+	query := `SELECT id, order_id, total, tax, payment_status FROM invoices WHERE order_id = ?`
+	rows, err := r.db.QueryContext(ctx, query, orderId)
+	if err != nil {
+		return nil, HandleSQLiteError(err)
+	}
+	defer rows.Close()
+
+	var invoices []domain.Invoice
+	for rows.Next() {
+		var invoice domain.Invoice
+		var total int
+		var tax int
+		err := rows.Scan(&invoice.ID, &invoice.OrderID, &total, &tax, &invoice.PaymentStatus)
+		if err != nil {
+			return nil, HandleSQLiteError(err)
+		}
+		invoice.Total = float64(total) / 100
+		invoice.Tax = float64(tax) / 100
+		invoices = append(invoices, invoice)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, HandleSQLiteError(err)
+	}
+	return invoices, nil
+}
