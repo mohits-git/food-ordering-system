@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mohits-git/food-ordering-system/internal/domain"
 	"github.com/mohits-git/food-ordering-system/internal/ports"
@@ -14,7 +13,7 @@ type UserSerivce struct {
 	passwordHasher ports.PasswordHasher
 }
 
-func NewUserService(repo ports.UserRepository, passwordHasher ports.PasswordHasher) *UserSerivce {
+func NewUserService(repo ports.UserRepository, passwordHasher ports.PasswordHasher) ports.UserService {
 	return &UserSerivce{
 		repo:           repo,
 		passwordHasher: passwordHasher,
@@ -42,7 +41,7 @@ func (s *UserSerivce) CreateUser(ctx context.Context, user domain.User) (int, er
 func (s *UserSerivce) GetUserById(ctx context.Context, id int) (domain.User, error) {
 	user, err := s.repo.FindUserById(ctx, id)
 	if err != nil {
-		return domain.User{}, errors.New("failed to get user by id: " + err.Error())
+		return domain.User{}, err
 	}
 	return user, nil
 }
