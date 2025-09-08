@@ -3,9 +3,9 @@ package dtos
 import "github.com/mohits-git/food-ordering-system/internal/domain"
 
 type AddMenuItemRequest struct {
-	Name         string  `json:"name"`
-	Price        float64 `json:"price"`
-	Available    bool    `json:"available"`
+	Name      string  `json:"name"`
+	Price     float64 `json:"price"`
+	Available bool    `json:"available"`
 }
 
 type UpdateMenuItemAvailabilityRequest struct {
@@ -26,12 +26,12 @@ type MenuItemResponse struct {
 }
 
 func NewMenuItemResponse(item domain.MenuItem) MenuItemResponse {
-  return MenuItemResponse{
-    ID:        item.ID,
-    Name:      item.Name,
-    Price:     item.Price,
-    Available: item.Available,
-  }
+	return MenuItemResponse{
+		ID:        item.ID,
+		Name:      item.Name,
+		Price:     item.Price,
+		Available: item.Available,
+	}
 }
 
 type GetMenuItemsResponse struct {
