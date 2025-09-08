@@ -116,6 +116,9 @@ func (s *OrderService) AddOrderItem(ctx context.Context, orderId int, item domai
 	if menuItem.ID == 0 || menuItem.RestaurantID != order.RestaurantID {
 		return apperr.NewAppError(apperr.ErrInvalid, "menu item does not belong to the restaurant of the order", nil)
 	}
+	if !menuItem.Available {
+		return apperr.NewAppError(apperr.ErrInvalid, "menu item is not available", nil)
+	}
 
 	// save order
 	order.AddItem(item.MenuItemID, item.Quantity)
