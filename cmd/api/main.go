@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -16,21 +17,18 @@ import (
 func main() {
 	ctx := context.Background()
 
-	db, err := sqlite.Connect(ctx, "file:food-ordering-system.db?cache=shared&mode=rwc")
-	if err != nil {
-		log.Println("Failed to connect to database:", err)
-		panic(err)
-	}
+	// load configurations
+	config := LoadConfig()
 
-	err = sqlite.Migrate(db)
-	if err != nil {
-		log.Println("Failed to migrate the database:", err)
-		panic(err)
-	}
-	log.Println("Database connected and migrated successfully")
+	// database setup
+	db := SetupDB(ctx, config.SQLITE_DSN)
 
 	// Initialize utilities
-	tokenProvider := jwttoken.NewJWTService("secret-key", "app-name", "app-audience")
+	tokenProvider := jwttoken.NewJWTService(
+		config.JWT_SECRET,
+		config.JWT_ISSUER,
+		config.JWT_AUDIENCE,
+	)
 	bcryptHasher := bcrypt.NewBcryptPasswordHasher(12)
 
 	// Initialize repositories
@@ -74,4 +72,20 @@ func main() {
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
+}
+
+func SetupDB(ctx context.Context, dsn string) *sql.DB {
+	db, err := sqlite.Connect(ctx, dsn)
+	if err != nil {
+		log.Println("Failed to connect to database:", err)
+		panic(err)
+	}
+
+	err = sqlite.Migrate(db)
+	if err != nil {
+		log.Println("Failed to migrate the database:", err)
+		panic(err)
+	}
+	log.Println("Database connected and migrated successfully")
+	return db
 }
