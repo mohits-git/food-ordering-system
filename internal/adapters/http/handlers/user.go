@@ -36,6 +36,8 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if apperr.IsConflictError(err) {
 			writeError(w, http.StatusConflict, "user already exists")
+		} else if apperr.IsInvalidError(err) {
+			writeError(w, http.StatusBadRequest, "invalid user data")
 		} else {
 			writeError(w, http.StatusInternalServerError, "failed to create user")
 		}

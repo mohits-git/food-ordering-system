@@ -1,5 +1,7 @@
 package domain
 
+import "regexp"
+
 type UserRole string
 
 const (
@@ -38,5 +40,11 @@ func (u *User) Validate() bool {
 	if u.Name == "" || u.Email == "" || u.Password == "" {
 		return false
 	}
+
+	matched, err := regexp.MatchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, u.Email)
+	if err != nil || !matched {
+		return false
+	}
+
 	return u.Role.IsValid()
 }
