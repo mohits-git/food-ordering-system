@@ -5,6 +5,7 @@ import (
 
 	apiclient "github.com/mohits-git/food-ordering-system/cmd/cli/api_client"
 	"github.com/mohits-git/food-ordering-system/internal/domain"
+	"github.com/mohits-git/food-ordering-system/internal/utils/authctx"
 )
 
 type Handlers struct {
@@ -17,26 +18,39 @@ func NewHandlers(apiClient *apiclient.APIClient) *Handlers {
 	}
 }
 
-func (h *Handlers) HandleLogin() string {
+func (h *Handlers) HandleLogin() (string, authctx.UserClaims) {
 	var email string
 	var password string
 
 	// enter email
-	fmt.Println("Enter email:")
-	fmt.Scanln(&email)
+	for {
+		fmt.Println("Enter email:")
+		fmt.Scanln(&email)
+		if validateEmail(email) {
+			break
+		}
+		fmt.Println("Invalid email format. Please try again.")
+	}
 
 	// enter password
-	fmt.Println("Enter password:")
-	fmt.Scanln(&password)
+	for {
+		fmt.Println("Enter password:")
+		fmt.Scanln(&password)
+		if validatePassword(password) {
+			break
+		}
+		fmt.Println("Password must be at least 6 characters long. Please try again.")
+	}
 
 	token, err := h.apiClient.PostLogin(email, password)
 	if err != nil {
 		fmt.Println("Error while login:", err)
-		return ""
+		return "", authctx.UserClaims{}
 	}
 
-	fmt.Printf("Login successful.\nToken: %s\n", token)
-	return token
+	userClaims := decodeJwt(token)
+	fmt.Printf("Login successful. User ID: %d, Role: %s\n", userClaims.UserID, userClaims.Role)
+	return token, userClaims
 }
 
 func (h *Handlers) HandleLogout(token string) {

@@ -8,7 +8,11 @@ import (
 
 	apiclient "github.com/mohits-git/food-ordering-system/cmd/cli/api_client"
 	"github.com/mohits-git/food-ordering-system/cmd/cli/handlers"
+	"github.com/mohits-git/food-ordering-system/internal/utils/authctx"
 )
+
+var jwtToken string
+var userClaims authctx.UserClaims
 
 func main() {
 	apiClient := apiclient.NewAPIClient("http://localhost:8080")
@@ -18,85 +22,152 @@ func main() {
 }
 
 func startRepl(handler *handlers.Handlers) {
-	jwtToken := ""
+	clearScreen()
+
 	for {
-		clearScreen()
-		// welcome message
-		fmt.Println("Welcome to the Food Ordering System!")
-		printActions()
-		// Read input
-		action := -1
-		fmt.Println("Choose an action:")
-		fmt.Scan(&action)
-		fmt.Println()
-
-		// Process input
-		switch action {
-		case 0:
-			fmt.Println("Exiting...")
-			return
-		case 1:
-			jwtToken = handler.HandleLogin()
-		case 2:
-			handler.HandleLogout(jwtToken)
-		case 3:
-			handler.HandleRegisterCustomer()
-		case 4:
-			handler.HandleViewRestaurants()
-		case 5:
-			handler.HandleViewRestaurantMenuItems()
-		case 6:
-			handler.HandleCreateOrder(jwtToken)
-		case 7:
-			handler.HandleAddMenuItemToOrder(jwtToken)
-		case 8:
-			handler.HandlePlaceOrderAndGetBill(jwtToken)
-		case 9:
-			handler.HandlePayBill(jwtToken)
-		case 10:
-			handler.HandleGetInvoiceById(jwtToken)
-		case 11:
-			handler.HandleRegisterRestaurantOwner()
-		case 12:
-			handler.HandleAddRestaurant(jwtToken)
-		case 13:
-			handler.HandleAddMenuItemToRestaurant(jwtToken)
-		case 14:
-			handler.HandleUpdateMenuItemAvailability(jwtToken)
+		if jwtToken == "" {
+			whenUserNotLoggedIn(handler)
+		} else if userClaims.Role == "customer" {
+			whenCustomerLoggedIn(handler)
+		} else if userClaims.Role == "owner" {
+			whenRestaurantOwnerLoggedIn(handler)
+		} else {
+			fmt.Println("Unknown user role. Logging out for safety.")
+			jwtToken = ""
+			userClaims = authctx.UserClaims{}
 		}
-
-		// clear screen
-		fmt.Println()
-		fmt.Println("Press Enter to continue...")
+		fmt.Printf("\nPress Enter to continue...\n")
 		fmt.Scanln()
 		clearScreen()
 	}
 }
 
-func printActions() {
+func whenUserNotLoggedIn(handlers *handlers.Handlers) {
+	printLoggedOutMenu()
+
+	action := -1
+	fmt.Println("Choose an action:")
+	fmt.Scan(&action)
+	fmt.Println()
+
+	clearScreen()
+	switch action {
+	case 0:
+		fmt.Println("Exiting...")
+		os.Exit(0)
+	case 1:
+		jwtToken, userClaims = handlers.HandleLogin()
+	case 2:
+		handlers.HandleRegisterCustomer()
+	case 3:
+		handlers.HandleRegisterRestaurantOwner()
+	}
+}
+
+func printLoggedOutMenu() {
 	menu := `
+  Welcome to the Food Ordering System!
 
   Available actions:
   0. Exit
   1. Login
-  2. Logout
+  2. Register as Customer
+  3. Register as Restaurant Owner
+ 
+`
+	fmt.Println(menu)
+}
 
-  Customer Actions:
-  3. Register as Customer
-  4. View Restaurants
-  5. View Restaurants Menu Items
-  6. Create Order
-  7. Add Menu Item to Order
-  8. Place Order and Get Bill
-  9. Pay for Bill
-  10. Get Bill by Id
+func whenCustomerLoggedIn(handlers *handlers.Handlers) {
+	printCustomerMenu()
 
-  Restaurant Owner Actions:
-  11. Register as Restaurant Owner
-  12. Add Restaurant
-  13. Add Menu Item to Restaurant
-  14. Update Menu Item Availability
+	action := -1
+	fmt.Println("Choose an action:")
+	fmt.Scan(&action)
+	fmt.Println()
 
+	clearScreen()
+	switch action {
+	case 0:
+		fmt.Println("Exiting...")
+		os.Exit(0)
+	case 1:
+		handlers.HandleViewRestaurants()
+	case 2:
+		handlers.HandleViewRestaurantMenuItems()
+	case 3:
+		handlers.HandleCreateOrder(jwtToken)
+	case 4:
+		handlers.HandleAddMenuItemToOrder(jwtToken)
+	case 5:
+		handlers.HandlePlaceOrderAndGetBill(jwtToken)
+	case 6:
+		handlers.HandlePayBill(jwtToken)
+	case 7:
+		handlers.HandleGetInvoiceById(jwtToken)
+	case 8:
+		handlers.HandleLogout(jwtToken)
+		jwtToken = ""
+		userClaims = authctx.UserClaims{}
+	}
+}
+
+func printCustomerMenu() {
+	menu := `
+	Welcome	Customer!
+ 
+	Available actions:
+	0. Exit
+	1. View Restaurants
+	2. View Restaurants Menu Items
+	3. Create Order
+	4. Add Menu Item to Order
+	5. Place Order and Get Bill
+	6. Pay for Bill
+	7. Get Bill by Id
+	8. Logout
+ 
+`
+	fmt.Println(menu)
+}
+
+func whenRestaurantOwnerLoggedIn(handlers *handlers.Handlers) {
+	printRestaurantOwnerMenu()
+
+	action := -1
+	fmt.Println("Choose an action:")
+	fmt.Scan(&action)
+	fmt.Println()
+
+	clearScreen()
+	switch action {
+	case 0:
+		fmt.Println("Exiting...")
+		os.Exit(0)
+	case 1:
+		handlers.HandleAddRestaurant(jwtToken)
+	case 2:
+		handlers.HandleAddMenuItemToRestaurant(jwtToken)
+	case 3:
+		handlers.HandleUpdateMenuItemAvailability(jwtToken)
+	case 4:
+		handlers.HandleLogout(jwtToken)
+		jwtToken = ""
+		userClaims = authctx.UserClaims{}
+	}
+}
+
+func printRestaurantOwnerMenu() {
+	menu := `
+  Welcome Restaurant Owner!
+ 
+  Available actions:
+  0. Exit
+  1. Add Restaurant
+  2. Add Menu Item to Restaurant
+  3. Update Menu Item Availability
+  4. Logout
+ 
 `
 	fmt.Println(menu)
 }
