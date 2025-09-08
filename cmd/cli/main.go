@@ -102,15 +102,6 @@ func whenCustomerLoggedIn(handlers *handlers.Handlers) {
 		jwtToken = ""
 		userClaims = authctx.UserClaims{}
 	}
-
-	// case 4:
-	// 	handlers.HandleAddMenuItemToOrder(jwtToken)
-	// case 5:
-	// 	handlers.HandlePlaceOrderAndGetBill(jwtToken)
-	// case 6:
-	// 	handlers.HandlePayBill(jwtToken)
-	// case 7:
-	// 	handlers.HandleGetInvoiceById(jwtToken)
 }
 
 func printCustomerMenu() {
@@ -125,11 +116,6 @@ func printCustomerMenu() {
   4. Logout
  
 `
-	// 4. Add Menu Item to Order
-	// 5. Place Order and Get Bill
-	// 6. Pay for Bill
-	// 7. Get Bill by Id
-
 	fmt.Println(menu)
 }
 

@@ -167,6 +167,10 @@ func (h *Handlers) HandleAddMenuItemToRestaurant(token string) {
 	var availableInput string
 	var available bool
 
+	fmt.Println("--------- Choose Restaurant ----------")
+	h.HandleViewRestaurants()
+	fmt.Printf("\n--------------------------------------\n\n")
+
 	// enter restaurant ID
 	fmt.Println("Enter Restaurant ID:")
 	fmt.Scanln(&restaurantId)
