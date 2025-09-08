@@ -18,7 +18,7 @@ func NewUserHandler(userService ports.UserService) *UserHandler {
 }
 
 func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
-	createUserReq, err := decodeJson[dtos.CreateUserRequest](r)
+	createUserReq, err := decodeRequest[dtos.CreateUserRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request payload")
 		return

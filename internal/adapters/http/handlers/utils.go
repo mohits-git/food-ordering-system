@@ -17,12 +17,32 @@ func encodeJson[T any](w io.Writer, data T) error {
 	return nil
 }
 
-func decodeJson[T any](r *http.Request) (T, error) {
+func decodeJson[T any](body io.ReadCloser) (T, error) {
 	var data T
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return data, apperr.NewAppError(apperr.ErrInvalid, "failed to decode json request", err)
+	if err := json.NewDecoder(body).Decode(&data); err != nil {
+		return data, apperr.NewAppError(apperr.ErrInvalid, "failed to decode json", err)
 	}
 	return data, nil
+}
+
+func decodeRequest[T any](r *http.Request) (T, error) {
+	return decodeJson[T](r.Body)
+}
+
+func decodeResponse[T any](r *http.Response) (T, error) {
+	type Response struct {
+		Status  int    `json:"status"`
+		Message string `json:"message"`
+		Data    T      `json:"data"`
+	}
+
+	response, err := decodeJson[Response](r.Body)
+	if err != nil {
+		var data T
+		return data, err
+	}
+
+	return response.Data, nil
 }
 
 func writeResponse[T any](w http.ResponseWriter, statusCode int, msg string, data T) {

@@ -18,7 +18,7 @@ func NewAuthHandler(authService ports.AuthenticationService) *AuthHandler {
 }
 
 func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	loginRequest, err := decodeJson[dtos.LoginRequest](r)
+	loginRequest, err := decodeRequest[dtos.LoginRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request")
 		return

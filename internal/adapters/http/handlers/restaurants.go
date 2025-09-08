@@ -35,7 +35,7 @@ func (h *RestaurantHandler) HandleGetRestaurants(w http.ResponseWriter, r *http.
 }
 
 func (h *RestaurantHandler) HandleCreateRestaurant(w http.ResponseWriter, r *http.Request) {
-	createReq, err := decodeJson[dtos.CreateRestaurantRequest](r)
+	createReq, err := decodeRequest[dtos.CreateRestaurantRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request payload")
 		return

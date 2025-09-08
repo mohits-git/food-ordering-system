@@ -11,15 +11,15 @@ import (
 )
 
 type OrdersHandler struct {
-  orderService ports.OrderService
+	orderService ports.OrderService
 }
 
 func NewOrdersHandler(orderService ports.OrderService) *OrdersHandler {
-  return &OrdersHandler{orderService}
+	return &OrdersHandler{orderService}
 }
 
 func (h *OrdersHandler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
-	orderRequest, err := decodeJson[dtos.CreateOrderRequest](r)
+	orderRequest, err := decodeRequest[dtos.CreateOrderRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request payload")
 		return
@@ -102,7 +102,7 @@ func (h *OrdersHandler) HandleAddOrderItem(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	addItemRequest, err := decodeJson[dtos.AddOrderItemRequest](r)
+	addItemRequest, err := decodeRequest[dtos.AddOrderItemRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request payload")
 		return

@@ -68,7 +68,7 @@ func (h *InvoiceHandler) HandleInvoicePayment(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	paymentReq, err := decodeJson[dtos.PaymentRequest](r)
+	paymentReq, err := decodeRequest[dtos.PaymentRequest](r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
