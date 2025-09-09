@@ -66,7 +66,7 @@ go test -cover -coverprofile=cover.out -json ./internal/... | tparse -all
 
 ### Authentication
 - `POST /api/auth/login` 
-- `POST /api/auth/logout`
+- `POST /api/auth/logout` (authenticated)
 
 ### Users
 - `POST /api/users`
@@ -76,28 +76,28 @@ go test -cover -coverprofile=cover.out -json ./internal/... | tparse -all
 
 ### Restaurants
 - `GET /api/restaurants`
-- `POST /api/restaurants`
+- `POST /api/restaurants` (authenticated)
 <!-- - `GET /api/restaurants/{id}` -->
 <!-- - `PUT /api/restaurants/{id}` -->
 <!-- - `DELETE /api/restaurants/{id}` -->
 
 ### Menu Items
 - `GET /api/restaurants/{id}/items`
-- `POST /api/restaurants/{id}/items`
-- `PATCH /api/items/{id}` (availability)
+- `POST /api/restaurants/{id}/items` (authenticated)
+- `PATCH /api/items/{id}` (availability) (authenticated)
 <!-- - `GET /api/items/{id}` -->
 <!-- - `PUT /api/items/{id}` -->
 <!-- - `DELETE /api/items/{id}` -->
 
 ### Orders
-- `POST /api/orders`
-- `POST /api/orders/{id}/items`
-- `GET /api/orders/{id}`
+- `POST /api/orders` (authenticated)
+- `POST /api/orders/{id}/items` (authenticated)
+- `GET /api/orders/{id}` (authenticated)
 <!-- - `GET /api/orders?user_id=<id>` -->
 <!-- - `PATCH /api/orders/{id}` -->
 <!-- - `DELETE /api/orders/{id}` -->
 
 ## Invoice
-- `POST /api/orders/{id}/invoices`
-- `POST /api/invoices/{id}/pay`
-- `GET /api/invoices/{id}`
+- `POST /api/orders/{id}/invoices` (authenticated)
+- `POST /api/invoices/{id}/pay` (authenticated)
+- `GET /api/invoices/{id}` (authenticated)
