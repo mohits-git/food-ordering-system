@@ -5,6 +5,8 @@ import (
 
 	"github.com/mattn/go-sqlite3"
 	"github.com/mohits-git/food-ordering-system/internal/utils/apperr"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHandleSQLiteError(t *testing.T) {
@@ -44,12 +46,8 @@ func TestHandleSQLiteError(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := HandleSQLiteError(tt.input)
 			appErr, ok := err.(*apperr.AppError)
-			if !ok {
-				t.Fatalf("expected AppError type, got %T", err)
-			}
-			if appErr.Code != tt.expectedCode {
-				t.Errorf("expected code %v, got %v", tt.expectedCode, appErr.Code)
-			}
+			require.Truef(t, ok, "expected AppError type, got %T", err)
+			assert.Equalf(t, tt.expectedCode, appErr.Code, "expected code %v, got %v", tt.expectedCode, appErr.Code)
 		})
 	}
 }

@@ -13,16 +13,11 @@ func TestConnect(t *testing.T) {
 	dsn := ":memory:"
 
 	db, err := Connect(ctx, dsn)
-	if err != nil {
-		t.Fatalf("failed to connect to database: %v", err)
-	}
-	if db == nil {
-		t.Fatal("expected db to be non-nil")
-	}
+	require.NoErrorf(t, err, "failed to connect to database: %v", err)
+	require.NotNil(t, db, "expected db to be non-nil")
 
-	if err := db.PingContext(ctx); err != nil {
-		t.Fatalf("failed to ping database: %v", err)
-	}
+	err = db.PingContext(ctx)
+	require.NoErrorf(t, err, "failed to ping database: %v", err)
 }
 
 func TestConnect_Concurrent(t *testing.T) {

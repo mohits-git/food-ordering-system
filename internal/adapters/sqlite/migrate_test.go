@@ -5,14 +5,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_sqlite_Migrate(t *testing.T) {
 	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
+	require.NoErrorf(t, err, "an error '%s' was not expected when opening a stub database connection", err)
 	defer db.Close()
 
 	// the starting query of the schema.sql query
@@ -20,20 +19,15 @@ func Test_sqlite_Migrate(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	err = Migrate(db)
-	if err != nil {
-		t.Errorf("unexpected error during migration: %s", err)
-	}
+	assert.NoErrorf(t, err, "unexpected error during migration: %s", err)
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
+	err = mock.ExpectationsWereMet()
+	assert.Errorf(t, err, "there were unfulfilled expectations: %s", err)
 }
 
 func Test_sqlite_Migrate_DBError(t *testing.T) {
 	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
+	require.NoErrorf(t, err, "an error '%s' was not expected when opening a stub database connection", err)
 	defer db.Close()
 
 	// the starting query of the schema.sql query

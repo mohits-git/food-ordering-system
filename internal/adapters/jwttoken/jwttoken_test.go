@@ -7,6 +7,7 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/mohits-git/food-ordering-system/internal/domain"
 	"github.com/mohits-git/food-ordering-system/internal/utils/authctx"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,20 +48,12 @@ func Test_jwttoken_ValidateToken_when_valid(t *testing.T) {
 	}
 
 	token, err := jwtService.GenerateToken(claims)
-	if err != nil {
-		t.Fatalf("expected no error generating token, got %v", err)
-	}
+	require.NoErrorf(t, err, "expected no error generating token, got %v", err)
 
 	validatedClaims, err := jwtService.ValidateToken(token)
-	if err != nil {
-		t.Errorf("expected no error validating token, got %v", err)
-	}
-	if validatedClaims.UserID != claims.UserID {
-		t.Errorf("expected UserID to be %d, got %d", claims.UserID, validatedClaims.UserID)
-	}
-	if validatedClaims.Role != claims.Role {
-		t.Errorf("expected Role to be %s, got %s", claims.Role, validatedClaims.Role)
-	}
+	assert.NoErrorf(t, err, "expected no error validating token, got %v", err)
+	assert.Equalf(t, claims.UserID, validatedClaims.UserID, "expected UserID to be %d, got %d", claims.UserID, validatedClaims.UserID)
+	assert.Equal(t, claims.Role, validatedClaims.Role, "expected Role to be %s, got %s", claims.Role, validatedClaims.Role)
 }
 
 func Test_jwttoken_ValidateToken_when_signed_with_invalid_secret(t *testing.T) {
@@ -71,16 +64,12 @@ func Test_jwttoken_ValidateToken_when_signed_with_invalid_secret(t *testing.T) {
 
 	jwtService := NewJWTService("mysecretkey", "myissuer", "myaudience")
 	token, err := jwtService.GenerateToken(claims)
-	if err != nil {
-		t.Fatalf("expected no error generating token, got %v", err)
-	}
+	require.NoErrorf(t, err, "expected no error generating token, got %v", err)
 
 	anotherJWTService := NewJWTService("anothersecretkey", "myissuer", "myaudience")
 
 	_, err = anotherJWTService.ValidateToken(token)
-	if err == nil {
-		t.Fatalf("expected error while validating token, got %v", err)
-	}
+	require.NoErrorf(t, err, "expected error while validating token, got %v", err)
 }
 
 func Test_jwttoken_ValidateToken_when_signed_with_invalid_iss_or_aud(t *testing.T) {
@@ -91,22 +80,16 @@ func Test_jwttoken_ValidateToken_when_signed_with_invalid_iss_or_aud(t *testing.
 
 	jwtService := NewJWTService("mysecretkey", "myissuer", "myaudience")
 	token, err := jwtService.GenerateToken(claims)
-	if err != nil {
-		t.Fatalf("expected no error generating token, got %v", err)
-	}
+	require.NoErrorf(t, err, "expected no error generating token, got %v", err)
 
 	anotherJWTService := NewJWTService("mysecretkey", "anotherissuer", "myaudience")
 
 	_, err = anotherJWTService.ValidateToken(token)
-	if err == nil {
-		t.Errorf("expected error while validating token, got %v", err)
-	}
+	require.NoErrorf(t, err, "expected error while validating token, got %v", err)
 
 	anotherJWTService = NewJWTService("mysecretkey", "myissuer", "anotheraudience")
 	_, err = anotherJWTService.ValidateToken(token)
-	if err == nil {
-		t.Errorf("expected error while validating token, got %v", err)
-	}
+	assert.Errorf(t, err, "expected error while validating token, got %v", err)
 }
 
 func Test_jwttoken_ValidateToken_when_invalid_user_claims(t *testing.T) {
