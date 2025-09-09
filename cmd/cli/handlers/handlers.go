@@ -114,16 +114,16 @@ func (h *Handlers) HandleViewRestaurants() {
 	}
 }
 
-func (h *Handlers) handleViewMenuItemsByRestaurantId(restaurantId int) {
+func (h *Handlers) handleViewMenuItemsByRestaurantId(restaurantId int) []domain.MenuItem {
 	menuItems, err := h.apiClient.GetMenuItems(restaurantId)
 	if err != nil {
 		fmt.Println("Error while fetching menu items:", err)
-		return
+		return nil
 	}
 
 	if len(menuItems) == 0 {
 		fmt.Println("No menu items found for this restaurant.")
-		return
+		return nil
 	}
 
 	fmt.Printf("Menu Items for Restaurant ID %d:\n", restaurantId)
@@ -134,6 +134,8 @@ func (h *Handlers) handleViewMenuItemsByRestaurantId(restaurantId int) {
 		}
 		fmt.Printf("ID: %d, Name: %s, Price: %.2f, Availability: %s\n", item.ID, item.Name, item.Price, availability)
 	}
+
+	return menuItems
 }
 
 func (h *Handlers) HandleViewRestaurantMenuItems() {
@@ -266,6 +268,14 @@ func (h *Handlers) HandlePlaceOrder(token string) {
 	fmt.Printf("\n\nThank You For Ordering. Enjoy your food ^_^\n")
 }
 
+func mapMenuItems(menuItem []domain.MenuItem) map[int]domain.MenuItem {
+	m := make(map[int]domain.MenuItem)
+	for _, item := range menuItem {
+		m[item.ID] = item
+	}
+	return m
+}
+
 func (h *Handlers) HandleCreateOrder(token string) int {
 	var restaurantId int
 
@@ -275,8 +285,13 @@ func (h *Handlers) HandleCreateOrder(token string) int {
 
 	// print restaurant menu items
 	fmt.Printf("\n------------ Restaurant Menu -------------\n")
-	h.handleViewMenuItemsByRestaurantId(restaurantId)
+	menuItems := h.handleViewMenuItemsByRestaurantId(restaurantId)
 	fmt.Printf("--------------------------------------------\n\n")
+
+	if menuItems == nil {
+		return 0
+	}
+	menuItemsMap := mapMenuItems(menuItems)
 
 	// loop to add menu items to order
 	orderItems := []domain.OrderItem{}
@@ -286,6 +301,16 @@ func (h *Handlers) HandleCreateOrder(token string) int {
 		fmt.Scanln(&menuItemId)
 		if menuItemId == 0 {
 			break
+		}
+
+		item, ok := menuItemsMap[menuItemId]
+		if !ok {
+			fmt.Println("Invalid Item ID. Try again...")
+			continue
+		}
+		if !item.IsAvailable() {
+			fmt.Println("Can't order unavailable items. Try adding other items...")
+			continue
 		}
 
 		var quantity int

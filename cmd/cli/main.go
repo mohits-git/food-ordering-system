@@ -133,12 +133,16 @@ func whenRestaurantOwnerLoggedIn(handlers *handlers.Handlers) {
 		fmt.Println("Exiting...")
 		os.Exit(0)
 	case 1:
-		handlers.HandleAddRestaurant(jwtToken)
+		handlers.HandleViewRestaurants()
 	case 2:
-		handlers.HandleAddMenuItemToRestaurant(jwtToken)
+		handlers.HandleViewRestaurantMenuItems()
 	case 3:
-		handlers.HandleUpdateMenuItemAvailability(jwtToken)
+		handlers.HandleAddRestaurant(jwtToken)
 	case 4:
+		handlers.HandleAddMenuItemToRestaurant(jwtToken)
+	case 5:
+		handlers.HandleUpdateMenuItemAvailability(jwtToken)
+	case 6:
 		handlers.HandleLogout(jwtToken)
 		jwtToken = ""
 		userClaims = authctx.UserClaims{}
@@ -151,10 +155,12 @@ func printRestaurantOwnerMenu() {
  
   Available actions:
   0. Exit
-  1. Add Restaurant
-  2. Add Menu Item to Restaurant
-  3. Update Menu Item Availability
-  4. Logout
+  1. View All Restaurants
+  2. View Restaurants Menu Items
+  3. Add Restaurant
+  4. Add Menu Item to Restaurant
+  5. Update Menu Item Availability
+  6. Logout
  
 `
 	fmt.Println(menu)
