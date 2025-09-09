@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	apiclient "github.com/mohits-git/food-ordering-system/cmd/cli/api_client"
 	"github.com/mohits-git/food-ordering-system/internal/domain"
@@ -66,17 +68,31 @@ func (h *Handlers) HandleLogout(token string) {
 func (h *Handlers) handleCreateUser(role string) {
 	var name, email, password string
 
+	reader := bufio.NewReader(os.Stdin)
+
 	// enter name
 	fmt.Println("Enter name:")
-	fmt.Scanln(&name)
+	name, _ = reader.ReadString('\n')
 
 	// enter email
-	fmt.Println("Enter email:")
-	fmt.Scanln(&email)
+	for {
+		fmt.Println("Enter email:")
+		fmt.Scanln(&email)
+		if validateEmail(email) {
+			break
+		}
+		fmt.Println("Invalid email format. Please try again.")
+	}
 
 	// enter password
-	fmt.Println("Enter password:")
-	fmt.Scanln(&password)
+	for {
+		fmt.Println("Enter password:")
+		fmt.Scanln(&password)
+		if validatePassword(password) {
+			break
+		}
+		fmt.Println("Password must be at least 6 characters long. Please try again.")
+	}
 
 	userID, err := h.apiClient.PostUser(name, email, password, role)
 	if err != nil {
@@ -95,12 +111,28 @@ func (h *Handlers) HandleRegisterRestaurantOwner() {
 	h.handleCreateUser("owner")
 }
 
-func (h *Handlers) HandleViewRestaurants() {
+func (h *Handlers) HandleViewRestaurants(args ...int) {
 	restaurants, err := h.apiClient.GetRestaurants()
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("Error while fetching restaurants:", err)
 		return
+	}
+
+	ownerId := 0
+	if len(args) > 0 {
+		ownerId = args[0]
+	}
+
+	if ownerId != 0 {
+		// filter by ownerId
+		ownerRestaurants := []domain.Restaurant{}
+		for _, r := range restaurants {
+			if r.OwnerID == ownerId {
+				ownerRestaurants = append(ownerRestaurants, r)
+			}
+		}
+		restaurants = ownerRestaurants
 	}
 
 	if len(restaurants) == 0 {
@@ -149,9 +181,11 @@ func (h *Handlers) HandleViewRestaurantMenuItems() {
 func (h *Handlers) HandleAddRestaurant(token string) {
 	var name string
 
+	reader := bufio.NewReader(os.Stdin)
+
 	// enter name
 	fmt.Println("Enter restaurant name:")
-	fmt.Scanln(&name)
+	name, _ = reader.ReadString('\n')
 
 	restaurantID, err := h.apiClient.PostRestaurants(name, token)
 	if err != nil {
@@ -162,7 +196,7 @@ func (h *Handlers) HandleAddRestaurant(token string) {
 	fmt.Printf("Restaurant added successfully with ID: %d\n", restaurantID)
 }
 
-func (h *Handlers) HandleAddMenuItemToRestaurant(token string) {
+func (h *Handlers) HandleAddMenuItemToRestaurant(token string, ownerId int) {
 	var restaurantId int
 	var name string
 	var price float64
@@ -170,8 +204,10 @@ func (h *Handlers) HandleAddMenuItemToRestaurant(token string) {
 	var available bool
 
 	fmt.Println("--------- Choose Restaurant ----------")
-	h.HandleViewRestaurants()
+	h.HandleViewRestaurants(ownerId)
 	fmt.Printf("\n--------------------------------------\n\n")
+
+	reader := bufio.NewReader(os.Stdin)
 
 	// enter restaurant ID
 	fmt.Println("Enter Restaurant ID:")
@@ -179,7 +215,7 @@ func (h *Handlers) HandleAddMenuItemToRestaurant(token string) {
 
 	// enter name
 	fmt.Println("Enter menu item name:")
-	fmt.Scanln(&name)
+	name, _ = reader.ReadString('\n')
 
 	// enter price
 	fmt.Println("Enter menu item price:")

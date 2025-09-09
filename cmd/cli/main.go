@@ -133,13 +133,13 @@ func whenRestaurantOwnerLoggedIn(handlers *handlers.Handlers) {
 		fmt.Println("Exiting...")
 		os.Exit(0)
 	case 1:
-		handlers.HandleViewRestaurants()
+		handlers.HandleViewRestaurants(userClaims.UserID)
 	case 2:
 		handlers.HandleViewRestaurantMenuItems()
 	case 3:
 		handlers.HandleAddRestaurant(jwtToken)
 	case 4:
-		handlers.HandleAddMenuItemToRestaurant(jwtToken)
+		handlers.HandleAddMenuItemToRestaurant(jwtToken, userClaims.UserID)
 	case 5:
 		handlers.HandleUpdateMenuItemAvailability(jwtToken)
 	case 6:
