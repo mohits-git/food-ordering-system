@@ -1,11 +1,31 @@
 # Food Ordering System
 Food Ordering System built with Golang
 
+## Project Setup
+
+This project contains http APIs for the food ordering system and a cli client for basic interaction with flow with apis
+
+- Copy envs
+```bash
+cp .env.example .env
+```
+
+- Run the server
+```bash
+go run ./cmd/api
+```
+
+- Run the cli client
+```bash
+go run ./cmd/client
+```
+
+
 ## Features
 - Add menu items with name, price, availability
 - Place an order with multiple items
 - Generate a bill with tax
-- Update menu item availability ## Design
+- Update menu item availability
 
 ## Entities
 
@@ -24,11 +44,6 @@ Food Ordering System built with Golang
 
 ### Restaurants
 - Restuarant is a entity, it can have it's own menu items, customers can place orders in a restaurant
-
-## Future Enhancements
-### Taxes
-- List of taxes for differnet restaurants restaurant, eg, gst on food (cgst & sgst), restaurant service charges/tax, etc...
-- Tax will contain: type (fixed charge/percentage), name, description, tax (float)
 
 ## APIs
 
