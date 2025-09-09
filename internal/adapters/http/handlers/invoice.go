@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/dtos"
@@ -27,6 +26,8 @@ func (h *InvoiceHandler) HandleCreateInvoice(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		if apperr.IsNotFoundError(err) {
 			writeError(w, http.StatusNotFound, "order not found")
+		} else if apperr.IsUnauthorizedError(err) {
+			writeError(w, http.StatusUnauthorized, "unauthorized")
 		} else if apperr.IsForbiddenError(err) {
 			writeError(w, http.StatusForbidden, "cannot create invoice for this order")
 		} else if apperr.IsConflictError(err) {
@@ -52,6 +53,8 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 			writeError(w, http.StatusNotFound, "invoice not found")
 		} else if apperr.IsForbiddenError(err) {
 			writeError(w, http.StatusForbidden, "cannot access this invoice")
+		} else if apperr.IsUnauthorizedError(err) {
+			writeError(w, http.StatusUnauthorized, "cannot access this invoice")
 		} else {
 			writeError(w, http.StatusInternalServerError, "internal server error")
 		}
@@ -76,13 +79,17 @@ func (h *InvoiceHandler) HandleInvoicePayment(w http.ResponseWriter, r *http.Req
 
 	err = h.invoiceService.DoInvoicePayment(r.Context(), invoiceId, paymentReq.Amount)
 	if err != nil {
-		log.Println("error in payment:", err)
 		if apperr.IsNotFoundError(err) {
 			writeError(w, http.StatusNotFound, "invoice not found")
 		} else if apperr.IsForbiddenError(err) {
 			writeError(w, http.StatusForbidden, "cannot update this invoice")
 		} else if apperr.IsConflictError(err) {
 			writeError(w, http.StatusConflict, "invoice already paid")
+		} else if apperr.IsUnauthorizedError(err) {
+			writeError(w, http.StatusUnauthorized, "unauthorized")
+		} else if apperr.IsInvalidError(err) {
+			appErr, _ := err.(*apperr.AppError)
+			writeError(w, http.StatusBadRequest, appErr.Message)
 		} else {
 			writeError(w, http.StatusInternalServerError, "internal server error")
 		}
