@@ -40,15 +40,11 @@ func (s *JWTService) GenerateToken(claims authctx.UserClaims) (string, error) {
 func (s *JWTService) ValidateToken(tokenString string) (authctx.UserClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token", jwt.ErrTokenMalformed)
+			return nil, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token signature method", jwt.ErrTokenMalformed)
 		}
 		return []byte(s.secretKey), nil
 	})
-	if err != nil {
-		return authctx.UserClaims{}, err
-	}
-
-	if !token.Valid {
+	if err != nil || !token.Valid {
 		return authctx.UserClaims{}, apperr.NewAppError(apperr.ErrUnauthorized, "invalid token", jwt.ErrTokenMalformed)
 	}
 

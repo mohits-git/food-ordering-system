@@ -9,4 +9,4 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type LogoutResponse struct {}
+type LogoutResponse struct{}

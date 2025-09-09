@@ -10,6 +10,11 @@ This project contains http APIs for the food ordering system and a cli client fo
 cp .env.example .env
 ```
 
+- Install dependencies
+```bash
+go mod tidy
+```
+
 - Run the server
 ```bash
 go run ./cmd/api
@@ -20,6 +25,18 @@ go run ./cmd/api
 go run ./cmd/client
 ```
 
+- Run Tests
+```bash
+go test -cover -coverprofile=cover.out ./internal/...
+```
+
+- With tparse
+```bash
+go install github.com/mfridman/tparse@latest
+```
+```bash
+go test -cover -coverprofile=cover.out -json ./internal/... | tparse -all
+```
 
 ## Features
 - Add menu items with name, price, availability
