@@ -86,6 +86,16 @@ func (s *InvoiceService) getOrderById(cxt context.Context, orderId int) (domain.
 	return order, nil
 }
 
+func (s *InvoiceService) getTotalPrice(order domain.Order, menuItems map[int]domain.MenuItem) float64 {
+	total := 0.0
+	for _, item := range order.OrderItems {
+		if menuItem, exists := menuItems[item.MenuItemID]; exists && menuItem.IsAvailable() {
+			total += menuItem.Price * float64(item.Quantity)
+		}
+	}
+	return total
+}
+
 func (s *InvoiceService) GenerateInvoice(ctx context.Context, orderId int) (domain.Invoice, error) {
 	order, err := s.getOrderById(ctx, orderId)
 
@@ -111,7 +121,7 @@ func (s *InvoiceService) GenerateInvoice(ctx context.Context, orderId int) (doma
 	s.cancelInvoices(ctx, orderId)
 
 	// Create an invoice based on the order details
-	total := order.TotalPrice(restaurantItemsMap)
+	total := s.getTotalPrice(order, restaurantItemsMap)
 	tax := s.calculateTax(total)
 	invoice := domain.Invoice{
 		OrderID:       order.ID,
@@ -195,10 +205,6 @@ func (s *InvoiceService) DoInvoicePayment(cxt context.Context, invoiceId int, pa
 
 	if invoice.PaymentStatus == domain.Paid {
 		return apperr.NewAppError(apperr.ErrInvalid, "invalid request", nil)
-	}
-
-	if payment < invoice.BillWithTax() {
-		return apperr.NewAppError(apperr.ErrInvalid, "insufficient payment amount", nil)
 	}
 
 	err = s.invoiceRepo.ChangeInvoiceStatus(cxt, invoiceId, domain.Paid)

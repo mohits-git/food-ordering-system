@@ -115,68 +115,6 @@ func Test_domain_Invoice_Validate(t *testing.T) {
 	}
 }
 
-func Test_domain_Invoice_BillWithTax(t *testing.T) {
-	type fields struct {
-		ID            int
-		OrderID       int
-		Total         float64
-		Tax           float64
-		PaymentStatus PaymentStatus
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   float64
-	}{
-		{
-			name: "Normal Case",
-			fields: fields{
-				ID:            1,
-				OrderID:       100,
-				Total:         250.75,
-				Tax:           20.25,
-				PaymentStatus: Paid,
-			},
-			want: 271.00,
-		},
-		{
-			name: "Zero Tax",
-			fields: fields{
-				ID:            2,
-				OrderID:       101,
-				Total:         150.00,
-				Tax:           0.00,
-				PaymentStatus: Unpaid,
-			},
-			want: 150.00,
-		},
-		{
-			name: "Zero Total and Tax",
-			fields: fields{
-				ID:            3,
-				OrderID:       102,
-				Total:         0.00,
-				Tax:           0.00,
-				PaymentStatus: Cancelled,
-			},
-			want: 0.00,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			inv := &Invoice{
-				ID:            tt.fields.ID,
-				OrderID:       tt.fields.OrderID,
-				Total:         tt.fields.Total,
-				Tax:           tt.fields.Tax,
-				PaymentStatus: tt.fields.PaymentStatus,
-			}
-			got := inv.BillWithTax()
-			assert.Equal(t, tt.want, got, "Invoice.BillWithTax() = %v, want %v", got, tt.want)
-		})
-	}
-}
-
 func Test_domain_PaymentStatus_Validate(t *testing.T) {
 	tests := []struct {
 		name string

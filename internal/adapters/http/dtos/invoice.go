@@ -17,7 +17,7 @@ func NewInvoiceResponse(invoice domain.Invoice) InvoiceResponse {
 		OrderID:       invoice.OrderID,
 		Total:         invoice.Total,
 		Tax:           invoice.Tax,
-		ToPay:         invoice.BillWithTax(),
+		ToPay:         invoice.Total + invoice.Tax,
 		PaymentStatus: string(invoice.PaymentStatus),
 	}
 }

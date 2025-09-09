@@ -38,30 +38,3 @@ func (o *Order) Validate(menuItems map[int]bool) bool {
 	}
 	return true
 }
-
-func (o *Order) AddItem(menuItemID int, quantity int) {
-	if quantity <= 0 {
-		return
-	}
-	for i, item := range o.OrderItems {
-		if item.MenuItemID == menuItemID {
-			o.OrderItems[i].Quantity += quantity
-			return
-		}
-	}
-	o.OrderItems = append(o.OrderItems, OrderItem{MenuItemID: menuItemID, Quantity: quantity})
-}
-
-func (o *Order) ClearItems() {
-	o.OrderItems = []OrderItem{}
-}
-
-func (o *Order) TotalPrice(menuItems map[int]MenuItem) float64 {
-	total := 0.0
-	for _, item := range o.OrderItems {
-		if menuItem, exists := menuItems[item.MenuItemID]; exists && menuItem.IsAvailable() {
-			total += menuItem.Price * float64(item.Quantity)
-		}
-	}
-	return total
-}

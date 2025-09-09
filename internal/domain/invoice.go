@@ -42,7 +42,3 @@ func (i *Invoice) Validate() bool {
 	}
 	return i.PaymentStatus.Validate()
 }
-
-func (i *Invoice) BillWithTax() float64 {
-	return i.Total + i.Tax
-}

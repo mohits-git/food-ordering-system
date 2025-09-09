@@ -121,10 +121,24 @@ func (s *OrderService) AddOrderItem(ctx context.Context, orderId int, item domai
 	}
 
 	// save order
-	order.AddItem(item.MenuItemID, item.Quantity)
-	if err := s.orderRepo.UpdateOrder(ctx, order); err != nil {
+	updatedOrder := s.addItemToOrder(order, item.MenuItemID, item.Quantity)
+	if err := s.orderRepo.UpdateOrder(ctx, updatedOrder); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (o *OrderService) addItemToOrder(order domain.Order, menuItemID int, quantity int) domain.Order {
+	if quantity <= 0 {
+		return order
+	}
+	for i, item := range order.OrderItems {
+		if item.MenuItemID == menuItemID {
+			order.OrderItems[i].Quantity += quantity
+			return order
+		}
+	}
+	order.OrderItems = append(order.OrderItems, domain.OrderItem{MenuItemID: menuItemID, Quantity: quantity})
+	return order
 }
