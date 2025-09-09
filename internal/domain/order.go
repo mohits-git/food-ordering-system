@@ -1,7 +1,5 @@
 package domain
 
-import "slices"
-
 type Order struct {
 	ID           int
 	CustomerID   int
@@ -52,23 +50,6 @@ func (o *Order) AddItem(menuItemID int, quantity int) {
 		}
 	}
 	o.OrderItems = append(o.OrderItems, OrderItem{MenuItemID: menuItemID, Quantity: quantity})
-}
-
-func (o *Order) RemoveItem(menuItemID int, quantity int) {
-	if quantity <= 0 {
-		return
-	}
-	i := slices.IndexFunc(o.OrderItems, func(item OrderItem) bool {
-		return item.MenuItemID == menuItemID
-	})
-	if i == -1 {
-		return
-	}
-	if o.OrderItems[i].Quantity < quantity {
-		o.OrderItems = append(o.OrderItems[:i], o.OrderItems[i+1:]...)
-		return
-	}
-	o.OrderItems[i].Quantity -= quantity
 }
 
 func (o *Order) ClearItems() {
