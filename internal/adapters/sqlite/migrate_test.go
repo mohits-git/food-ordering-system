@@ -22,7 +22,7 @@ func Test_sqlite_Migrate(t *testing.T) {
 	assert.NoErrorf(t, err, "unexpected error during migration: %s", err)
 
 	err = mock.ExpectationsWereMet()
-	assert.Errorf(t, err, "there were unfulfilled expectations: %s", err)
+	assert.NoErrorf(t, err, "there were unfulfilled expectations: %s", err)
 }
 
 func Test_sqlite_Migrate_DBError(t *testing.T) {

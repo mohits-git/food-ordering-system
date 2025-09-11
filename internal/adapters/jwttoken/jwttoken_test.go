@@ -69,7 +69,7 @@ func Test_jwttoken_ValidateToken_when_signed_with_invalid_secret(t *testing.T) {
 	anotherJWTService := NewJWTService("anothersecretkey", "myissuer", "myaudience")
 
 	_, err = anotherJWTService.ValidateToken(token)
-	require.NoErrorf(t, err, "expected error while validating token, got %v", err)
+	require.Errorf(t, err, "expected error while validating token, got %v", err)
 }
 
 func Test_jwttoken_ValidateToken_when_signed_with_invalid_iss_or_aud(t *testing.T) {
@@ -85,7 +85,7 @@ func Test_jwttoken_ValidateToken_when_signed_with_invalid_iss_or_aud(t *testing.
 	anotherJWTService := NewJWTService("mysecretkey", "anotherissuer", "myaudience")
 
 	_, err = anotherJWTService.ValidateToken(token)
-	require.NoErrorf(t, err, "expected error while validating token, got %v", err)
+	require.Errorf(t, err, "expected error while validating token, got %v", err)
 
 	anotherJWTService = NewJWTService("mysecretkey", "myissuer", "anotheraudience")
 	_, err = anotherJWTService.ValidateToken(token)

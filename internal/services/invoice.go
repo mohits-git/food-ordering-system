@@ -207,6 +207,10 @@ func (s *InvoiceService) DoInvoicePayment(cxt context.Context, invoiceId int, pa
 		return apperr.NewAppError(apperr.ErrInvalid, "invalid request", nil)
 	}
 
+	if invoice.Tax+invoice.Total > payment {
+		return apperr.NewAppError(apperr.ErrInvalid, "insufficient payment amount", nil)
+	}
+
 	err = s.invoiceRepo.ChangeInvoiceStatus(cxt, invoiceId, domain.Paid)
 	if err != nil {
 		return err
