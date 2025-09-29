@@ -4,7 +4,7 @@ import "github.com/mohits-git/food-ordering-system/internal/domain"
 
 type CreateRestaurantRequest struct {
 	Name     string `json:"name"`
-	ImageURL string `jsoh:"image_url"`
+	ImageURL string `json:"image_url"`
 }
 
 type CreateRestaurantResponse struct {

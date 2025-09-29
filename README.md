@@ -97,7 +97,7 @@ go test -cover -coverprofile=cover.out -json ./internal/... | tparse -all
 <!-- - `PATCH /api/orders/{id}` -->
 <!-- - `DELETE /api/orders/{id}` -->
 
-## Invoice
+### Invoice
 - `POST /api/orders/{id}/invoices` (authenticated)
 - `POST /api/invoices/{id}/pay` (authenticated)
 - `GET /api/invoices/{id}` (authenticated)
