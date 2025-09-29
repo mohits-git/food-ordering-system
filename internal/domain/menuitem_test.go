@@ -13,6 +13,7 @@ func Test_domain_NewMenuItem(t *testing.T) {
 		price        float64
 		available    bool
 		restaurantId int
+		imageUrl     string
 	}
 	tests := []struct {
 		name string
@@ -27,6 +28,7 @@ func Test_domain_NewMenuItem(t *testing.T) {
 				price:        9.99,
 				available:    true,
 				restaurantId: 1,
+				imageUrl:     "file.com",
 			},
 			want: MenuItem{
 				ID:           1,
@@ -34,12 +36,13 @@ func Test_domain_NewMenuItem(t *testing.T) {
 				Price:        9.99,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewMenuItem(tt.args.id, tt.args.name, tt.args.price, tt.args.available, tt.args.restaurantId)
+			got := NewMenuItem(tt.args.id, tt.args.name, tt.args.price, tt.args.available, tt.args.restaurantId, tt.args.imageUrl)
 			assert.Equal(t, tt.want, got, "NewMenuItem() = %v, want %v", got, tt.want)
 		})
 	}
@@ -59,6 +62,7 @@ func Test_domain_MenuItem_Validate(t *testing.T) {
 				Price:        5.99,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 			want: true,
 		},
@@ -70,6 +74,7 @@ func Test_domain_MenuItem_Validate(t *testing.T) {
 				Price:        5.99,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 			want: false,
 		},
@@ -81,6 +86,7 @@ func Test_domain_MenuItem_Validate(t *testing.T) {
 				Price:        -1.00,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 			want: false,
 		},
@@ -92,6 +98,7 @@ func Test_domain_MenuItem_Validate(t *testing.T) {
 				Price:        7.99,
 				Available:    true,
 				RestaurantID: 0,
+				ImageURL:     "file.com",
 			},
 			want: false,
 		},

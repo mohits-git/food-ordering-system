@@ -6,15 +6,17 @@ type MenuItem struct {
 	Price        float64
 	Available    bool
 	RestaurantID int
+	ImageURL     string
 }
 
-func NewMenuItem(id int, name string, price float64, available bool, restaurantId int) MenuItem {
+func NewMenuItem(id int, name string, price float64, available bool, restaurantId int, imageUrl string) MenuItem {
 	return MenuItem{
 		ID:           id,
 		Name:         name,
 		Price:        price,
 		Available:    available,
 		RestaurantID: restaurantId,
+		ImageURL:     imageUrl,
 	}
 }
 

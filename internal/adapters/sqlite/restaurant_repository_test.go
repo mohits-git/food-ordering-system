@@ -41,12 +41,13 @@ func Test_sqlite_RestaurantRepository_SaveRestaurant(t *testing.T) {
 		{
 			name: "Successful insert",
 			restaurant: domain.Restaurant{
-				Name:    "Test Restaurant",
-				OwnerID: 1,
+				Name:     "Test Restaurant",
+				OwnerID:  1,
+				ImageURL: "file.com",
 			},
 			mockSetup: func() {
 				mock.ExpectQuery("INSERT INTO restaurants").
-					WithArgs("Test Restaurant", 1).
+					WithArgs("Test Restaurant", 1, "file.com").
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 			},
 			expectedID:    1,
@@ -55,12 +56,13 @@ func Test_sqlite_RestaurantRepository_SaveRestaurant(t *testing.T) {
 		{
 			name: "Database error",
 			restaurant: domain.Restaurant{
-				Name:    "Test Restaurant",
-				OwnerID: 1,
+				Name:     "Test Restaurant",
+				OwnerID:  1,
+				ImageURL: "file.com",
 			},
 			mockSetup: func() {
 				mock.ExpectQuery("INSERT INTO restaurants").
-					WithArgs("Test Restaurant", 1).
+					WithArgs("Test Restaurant", 1, "file.com").
 					WillReturnError(sqlite3.Error{Code: sqlite3.ErrConstraint, ExtendedCode: sqlite3.ErrConstraintUnique})
 			},
 			expectedID:       0,
@@ -110,21 +112,21 @@ func Test_sqlite_RestaurantRepository_FindAllRestaurants(t *testing.T) {
 		{
 			name: "Successful fetch",
 			mockSetup: func() {
-				rows := sqlmock.NewRows([]string{"id", "name", "owner_id"}).
-					AddRow(1, "Restaurant 1", 1).
-					AddRow(2, "Restaurant 2", 2)
-				mock.ExpectQuery("SELECT id, name, owner_id FROM restaurants").WillReturnRows(rows)
+				rows := sqlmock.NewRows([]string{"id", "name", "owner_id", "image_url"}).
+					AddRow(1, "Restaurant 1", 1, "file.com").
+					AddRow(2, "Restaurant 2", 2, "file.com")
+				mock.ExpectQuery("SELECT id, name, owner_id, image_url FROM restaurants").WillReturnRows(rows)
 			},
 			expectedResults: []domain.Restaurant{
-				{ID: 1, Name: "Restaurant 1", OwnerID: 1},
-				{ID: 2, Name: "Restaurant 2", OwnerID: 2},
+				{ID: 1, Name: "Restaurant 1", OwnerID: 1, ImageURL: "file.com"},
+				{ID: 2, Name: "Restaurant 2", OwnerID: 2, ImageURL: "file.com"},
 			},
 			expectedError: false,
 		},
 		{
 			name: "Database error",
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, owner_id FROM restaurants").
+				mock.ExpectQuery("SELECT id, name, owner_id, image_url FROM restaurants").
 					WillReturnError(sql.ErrConnDone)
 			},
 			expectedResults:  nil,
@@ -176,20 +178,20 @@ func Test_sqlite_RestaurantRepository_FindRestaurantById(t *testing.T) {
 			name:         "Successful fetch",
 			restaurantID: 1,
 			mockSetup: func() {
-				row := sqlmock.NewRows([]string{"id", "name", "owner_id"}).
-					AddRow(1, "Restaurant 1", 1)
-				mock.ExpectQuery("SELECT id, name, owner_id FROM restaurants WHERE id = ?").
+				row := sqlmock.NewRows([]string{"id", "name", "owner_id", "image_url"}).
+					AddRow(1, "Restaurant 1", 1, "file.com")
+				mock.ExpectQuery("SELECT id, name, owner_id, image_url FROM restaurants WHERE id = ?").
 					WithArgs(1).
 					WillReturnRows(row)
 			},
-			expectedResult: domain.Restaurant{ID: 1, Name: "Restaurant 1", OwnerID: 1},
+			expectedResult: domain.Restaurant{ID: 1, Name: "Restaurant 1", OwnerID: 1, ImageURL: "file.com"},
 			expectedError:  false,
 		},
 		{
 			name:         "Restaurant not found",
 			restaurantID: 2,
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, owner_id FROM restaurants WHERE id = ?").
+				mock.ExpectQuery("SELECT id, name, owner_id, image_url FROM restaurants WHERE id = ?").
 					WithArgs(2).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -200,7 +202,7 @@ func Test_sqlite_RestaurantRepository_FindRestaurantById(t *testing.T) {
 			name:         "Database error",
 			restaurantID: 3,
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, owner_id FROM restaurants WHERE id = ?").
+				mock.ExpectQuery("SELECT id, name, owner_id, image_url FROM restaurants WHERE id = ?").
 					WithArgs(3).
 					WillReturnError(sql.ErrConnDone)
 			},

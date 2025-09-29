@@ -53,7 +53,7 @@ func Test_services_RestaurantService_CreateRestaurant(t *testing.T) {
 	mockRepo := mockrepository.RestaurantRepository{}
 	service := NewRestaurantService(&mockRepo)
 
-	newRestaurant := domain.Restaurant{Name: "New Restaurant", OwnerID: 1}
+	newRestaurant := domain.Restaurant{Name: "New Restaurant", OwnerID: 1, ImageURL: "file.com"}
 
 	mockRepo.On("SaveRestaurant", mock.Anything, newRestaurant).
 		Return(1, nil)
@@ -63,7 +63,7 @@ func Test_services_RestaurantService_CreateRestaurant(t *testing.T) {
 		Role:   domain.OWNER,
 	})
 
-	restaurantId, err := service.CreateRestaurant(ctx, newRestaurant.Name)
+	restaurantId, err := service.CreateRestaurant(ctx, newRestaurant.Name, newRestaurant.ImageURL)
 	require.NoError(t, err)
 	require.Equal(t, 1, restaurantId)
 	mockRepo.AssertExpectations(t)
@@ -78,7 +78,7 @@ func Test_services_RestaurantService_CreateRestaurant_when_invalid_name(t *testi
 		Role:   domain.OWNER,
 	})
 
-	restaurantId, err := service.CreateRestaurant(ctx, "")
+	restaurantId, err := service.CreateRestaurant(ctx, "", "")
 	require.Error(t, err)
 	require.Equal(t, 0, restaurantId)
 	mockRepo.AssertNotCalled(t, "SaveRestaurant", mock.Anything, mock.Anything)
@@ -88,7 +88,7 @@ func Test_services_RestaurantService_CreateRestaurant_when_unauthorized(t *testi
 	mockRepo := mockrepository.RestaurantRepository{}
 	service := NewRestaurantService(&mockRepo)
 
-	restaurantId, err := service.CreateRestaurant(t.Context(), "New Restaurant")
+	restaurantId, err := service.CreateRestaurant(t.Context(), "New Restaurant", "")
 	require.Error(t, err)
 	require.Equal(t, 0, restaurantId)
 	mockRepo.AssertNotCalled(t, "SaveRestaurant", mock.Anything, mock.Anything)
@@ -103,7 +103,7 @@ func Test_services_RestaurantService_CreateRestaurant_when_forbidden(t *testing.
 		Role:   domain.CUSTOMER,
 	})
 
-	restaurantId, err := service.CreateRestaurant(ctx, "New Restaurant")
+	restaurantId, err := service.CreateRestaurant(ctx, "New Restaurant", "")
 	require.Error(t, err)
 	require.Equal(t, 0, restaurantId)
 	mockRepo.AssertNotCalled(t, "SaveRestaurant", mock.Anything, mock.Anything)
@@ -114,7 +114,7 @@ func Test_services_RestaurantService_CreateRestaurant_when_repo_error(t *testing
 	service := NewRestaurantService(&mockRepo)
 	expectedErr := apperr.NewAppError(apperr.ErrInternal, "internal error", nil)
 
-	newRestaurant := domain.Restaurant{Name: "New Restaurant", OwnerID: 1}
+	newRestaurant := domain.Restaurant{Name: "New Restaurant", OwnerID: 1, ImageURL: ""}
 
 	mockRepo.On("SaveRestaurant", mock.Anything, newRestaurant).
 		Return(0, expectedErr)
@@ -124,7 +124,7 @@ func Test_services_RestaurantService_CreateRestaurant_when_repo_error(t *testing
 		Role:   domain.OWNER,
 	})
 
-	restaurantId, err := service.CreateRestaurant(ctx, newRestaurant.Name)
+	restaurantId, err := service.CreateRestaurant(ctx, newRestaurant.Name, "")
 	require.ErrorIs(t, err, expectedErr)
 	require.Equal(t, 0, restaurantId)
 	mockRepo.AssertExpectations(t)

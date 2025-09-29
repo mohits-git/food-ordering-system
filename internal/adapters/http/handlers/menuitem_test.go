@@ -257,8 +257,8 @@ func Test_handlers_MenuItemHandler_HandleGetRestaurantMenuItems(t *testing.T) {
 	require.NotNil(t, handler, "expected NewMenuItemHandler to return a non-nil handler")
 
 	menuItems := []domain.MenuItem{
-		domain.NewMenuItem(1, "Item 1", 10.0, true, 1),
-		domain.NewMenuItem(2, "Item 2", 15.0, false, 1),
+		domain.NewMenuItem(1, "Item 1", 10.0, true, 1, ""),
+		domain.NewMenuItem(2, "Item 2", 15.0, false, 1, ""),
 	}
 
 	mockservice.On("GetAllMenuItemsByRestaurantId", mock.Anything, 1).Return(menuItems, nil).Once()

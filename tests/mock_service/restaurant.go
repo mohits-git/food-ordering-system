@@ -11,8 +11,8 @@ type RestaurantService struct {
 	mock.Mock
 }
 
-func (s *RestaurantService) CreateRestaurant(ctx context.Context, restaurantName string) (int, error) {
-	args := s.Called(ctx, restaurantName)
+func (s *RestaurantService) CreateRestaurant(ctx context.Context, restaurantName, restaurantImage string) (int, error) {
+	args := s.Called(ctx, restaurantName, restaurantImage)
 	return args.Int(0), args.Error(1)
 }
 

@@ -43,10 +43,11 @@ func Test_sqlite_MenuItemRepository_SaveMenuItem(t *testing.T) {
 				Price:        9.99,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 			mockSetup: func() {
 				mock.ExpectQuery("INSERT INTO menuitems").
-					WithArgs("Test Item", 9.99, true, 1).
+					WithArgs("Test Item", 9.99, true, 1, "file.com").
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 			},
 			expectedID:    1,
@@ -59,10 +60,11 @@ func Test_sqlite_MenuItemRepository_SaveMenuItem(t *testing.T) {
 				Price:        9.99,
 				Available:    true,
 				RestaurantID: 1,
+				ImageURL:     "file.com",
 			},
 			mockSetup: func() {
 				mock.ExpectQuery("INSERT INTO menuitems").
-					WithArgs("Test Item", 9.99, true, 1).
+					WithArgs("Test Item", 9.99, true, 1, "file.com").
 					WillReturnError(sqlmock.ErrCancelled)
 			},
 			expectedID:    0,
@@ -170,16 +172,16 @@ func Test_sqlite_MenuItemRepository_FindMenuItemsByRestaurantId(t *testing.T) {
 			name:         "Successful fetch",
 			restaurantID: 1,
 			mockSetup: func() {
-				rows := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id"}).
-					AddRow(1, "Item 1", 9.99, true, 1).
-					AddRow(2, "Item 2", 19.99, false, 1)
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE restaurant_id = \\?").
+				rows := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id", "image_url"}).
+					AddRow(1, "Item 1", 9.99, true, 1, "file.com").
+					AddRow(2, "Item 2", 19.99, false, 1, "file.com")
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE restaurant_id = \\?").
 					WithArgs(1).
 					WillReturnRows(rows)
 			},
 			expectedResults: []domain.MenuItem{
-				{ID: 1, Name: "Item 1", Price: 9.99, Available: true, RestaurantID: 1},
-				{ID: 2, Name: "Item 2", Price: 19.99, Available: false, RestaurantID: 1},
+				{ID: 1, Name: "Item 1", Price: 9.99, Available: true, RestaurantID: 1, ImageURL: "file.com"},
+				{ID: 2, Name: "Item 2", Price: 19.99, Available: false, RestaurantID: 1, ImageURL: "file.com"},
 			},
 			expectedError: false,
 		},
@@ -187,8 +189,8 @@ func Test_sqlite_MenuItemRepository_FindMenuItemsByRestaurantId(t *testing.T) {
 			name:         "No items found",
 			restaurantID: 2,
 			mockSetup: func() {
-				rows := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id"})
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE restaurant_id = \\?").
+				rows := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id", "image_url"})
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE restaurant_id = \\?").
 					WithArgs(2).
 					WillReturnRows(rows)
 			},
@@ -199,7 +201,7 @@ func Test_sqlite_MenuItemRepository_FindMenuItemsByRestaurantId(t *testing.T) {
 			name:         "Database error",
 			restaurantID: 1,
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE restaurant_id = \\?").
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE restaurant_id = \\?").
 					WithArgs(1).
 					WillReturnError(sqlmock.ErrCancelled)
 			},
@@ -249,20 +251,20 @@ func Test_sqlite_MenuItemRepository_FindMenuItemById(t *testing.T) {
 			name:       "Successful fetch",
 			menuItemID: 1,
 			mockSetup: func() {
-				row := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id"}).
-					AddRow(1, "Item 1", 9.99, true, 1)
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE id = \\?").
+				row := sqlmock.NewRows([]string{"id", "name", "price", "available", "restaurant_id", "image_url"}).
+					AddRow(1, "Item 1", 9.99, true, 1, "file.com")
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE id = \\?").
 					WithArgs(1).
 					WillReturnRows(row)
 			},
-			expectedResult: domain.MenuItem{ID: 1, Name: "Item 1", Price: 9.99, Available: true, RestaurantID: 1},
+			expectedResult: domain.MenuItem{ID: 1, Name: "Item 1", Price: 9.99, Available: true, RestaurantID: 1, ImageURL: "file.com"},
 			expectedError:  false,
 		},
 		{
 			name:       "Menu item not found",
 			menuItemID: 2,
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE id = \\?").
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE id = \\?").
 					WithArgs(2).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -274,7 +276,7 @@ func Test_sqlite_MenuItemRepository_FindMenuItemById(t *testing.T) {
 			name:       "Database error",
 			menuItemID: 3,
 			mockSetup: func() {
-				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id FROM menuitems WHERE id = \\?").
+				mock.ExpectQuery("SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE id = \\?").
 					WithArgs(3).
 					WillReturnError(sqlmock.ErrCancelled)
 			},

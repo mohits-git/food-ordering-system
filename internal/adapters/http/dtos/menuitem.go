@@ -6,6 +6,7 @@ type AddMenuItemRequest struct {
 	Name      string  `json:"name"`
 	Price     float64 `json:"price"`
 	Available bool    `json:"available"`
+	ImageURL  string  `json:"image_url"`
 }
 
 type UpdateMenuItemAvailabilityRequest struct {
@@ -23,6 +24,7 @@ type MenuItemResponse struct {
 	Name      string  `json:"name"`
 	Price     float64 `json:"price"`
 	Available bool    `json:"available"`
+	ImageURL  string  `json:"image_url"`
 }
 
 func NewMenuItemResponse(item domain.MenuItem) MenuItemResponse {
@@ -31,6 +33,7 @@ func NewMenuItemResponse(item domain.MenuItem) MenuItemResponse {
 		Name:      item.Name,
 		Price:     item.Price,
 		Available: item.Available,
+		ImageURL:  item.ImageURL,
 	}
 }
 

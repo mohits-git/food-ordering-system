@@ -17,9 +17,9 @@ func NewMenuItemRepository(db *sql.DB) *MenuItemRepository {
 }
 
 func (m *MenuItemRepository) SaveMenuItem(cxt context.Context, item domain.MenuItem) (int, error) {
-	query := `INSERT INTO menuitems (name, price, available, restaurant_id) VALUES (?, ?, ?, ?) RETURNING id`
+	query := `INSERT INTO menuitems (name, price, available, restaurant_id, image_url) VALUES (?, ?, ?, ?, ?) RETURNING id`
 	var id int
-	err := m.db.QueryRowContext(cxt, query, item.Name, item.Price, item.Available, item.RestaurantID).Scan(&id)
+	err := m.db.QueryRowContext(cxt, query, item.Name, item.Price, item.Available, item.RestaurantID, item.ImageURL).Scan(&id)
 	if err != nil {
 		return 0, HandleSQLiteError(err)
 	}
@@ -36,7 +36,7 @@ func (m *MenuItemRepository) UpdateMenuItemAvailability(cxt context.Context, id 
 }
 
 func (m *MenuItemRepository) FindMenuItemsByRestaurantId(cxt context.Context, restaurantId int) ([]domain.MenuItem, error) {
-	query := `SELECT id, name, price, available, restaurant_id FROM menuitems WHERE restaurant_id = ?`
+	query := `SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE restaurant_id = ?`
 	rows, err := m.db.QueryContext(cxt, query, restaurantId)
 	if err != nil {
 		return nil, HandleSQLiteError(err)
@@ -46,8 +46,12 @@ func (m *MenuItemRepository) FindMenuItemsByRestaurantId(cxt context.Context, re
 	menuItems := []domain.MenuItem{}
 	for rows.Next() {
 		var item domain.MenuItem
-		if err := rows.Scan(&item.ID, &item.Name, &item.Price, &item.Available, &item.RestaurantID); err != nil {
+		var imageUrl sql.NullString
+		if err := rows.Scan(&item.ID, &item.Name, &item.Price, &item.Available, &item.RestaurantID, &imageUrl); err != nil {
 			return nil, HandleSQLiteError(err)
+		}
+		if imageUrl.Valid {
+			item.ImageURL = imageUrl.String
 		}
 		menuItems = append(menuItems, item)
 	}
@@ -59,14 +63,18 @@ func (m *MenuItemRepository) FindMenuItemsByRestaurantId(cxt context.Context, re
 }
 
 func (m *MenuItemRepository) FindMenuItemById(cxt context.Context, id int) (domain.MenuItem, error) {
-	query := `SELECT id, name, price, available, restaurant_id FROM menuitems WHERE id = ?`
+	query := `SELECT id, name, price, available, restaurant_id, image_url FROM menuitems WHERE id = ?`
 	var item domain.MenuItem
-	err := m.db.QueryRowContext(cxt, query, id).Scan(&item.ID, &item.Name, &item.Price, &item.Available, &item.RestaurantID)
+	var imageUrl sql.NullString
+	err := m.db.QueryRowContext(cxt, query, id).Scan(&item.ID, &item.Name, &item.Price, &item.Available, &item.RestaurantID, &imageUrl)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return domain.MenuItem{}, apperr.NewAppError(apperr.ErrNotFound, "menu item not found", nil)
 		}
 		return domain.MenuItem{}, HandleSQLiteError(err)
+	}
+	if imageUrl.Valid {
+		item.ImageURL = imageUrl.String
 	}
 	return item, nil
 }

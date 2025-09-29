@@ -29,7 +29,7 @@ func (h *MenuItemHandler) HandleAddMenuItemToRestaurant(w http.ResponseWriter, r
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	menuItem := domain.NewMenuItem(0, addRequest.Name, addRequest.Price, addRequest.Available, restaurantId)
+	menuItem := domain.NewMenuItem(0, addRequest.Name, addRequest.Price, addRequest.Available, restaurantId, addRequest.ImageURL)
 	menuItemId, err := h.menuItemsService.CreateMenuItemForRestaurant(r.Context(), menuItem)
 	if err != nil {
 		log.Println("Error creating menu item:", err)

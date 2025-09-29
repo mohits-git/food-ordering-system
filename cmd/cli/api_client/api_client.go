@@ -263,6 +263,7 @@ func (c *APIClient) GetMenuItems(restaurantId int) ([]domain.MenuItem, error) {
 			item.Price,
 			item.Available,
 			restaurantId,
+			"",
 		))
 	}
 	return menuItems, nil

@@ -26,9 +26,10 @@ func Test_handlers_RestaurantHandler_HandleGetRestaurants(t *testing.T) {
 
 	mockservice.On("GetAllRestaurants", mock.Anything).Return([]domain.Restaurant{
 		{
-			ID:      1,
-			Name:    "Test Restaurant",
-			OwnerID: 1,
+			ID:       1,
+			Name:     "Test Restaurant",
+			OwnerID:  1,
+			ImageURL: "file.com",
 		},
 	}, nil).Once()
 
@@ -79,12 +80,13 @@ func Test_handlers_RestaurantHandler_HandleCreateRestaurant(t *testing.T) {
 	handler := NewRestaurantHandler(mockservice)
 	require.NotNil(t, handler, "expected NewRestaurantHandler to return a non-nil handler")
 
-	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant").Return(
+	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant", "file.com").Return(
 		1, nil).Once()
 
 	buf := bytes.NewBuffer(nil)
 	err := encodeJson(buf, dtos.CreateRestaurantRequest{
-		Name: "New Restaurant",
+		Name:     "New Restaurant",
+		ImageURL: "file.com",
 	})
 	require.NoError(t, err, "expected no error while encoding request body")
 
@@ -109,12 +111,13 @@ func Test_handlers_RestaurantHandler_HandleCreateRestaurant_Unauthorized(t *test
 	handler := NewRestaurantHandler(mockservice)
 	require.NotNil(t, handler, "expected NewRestaurantHandler to return a non-nil handler")
 
-	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant").Return(
+	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant", "file.com").Return(
 		0, apperr.NewAppError(apperr.ErrUnauthorized, "unauthorized", nil)).Once()
 
 	buf := bytes.NewBuffer(nil)
 	err := encodeJson(buf, dtos.CreateRestaurantRequest{
-		Name: "New Restaurant",
+		Name:     "New Restaurant",
+		ImageURL: "file.com",
 	})
 	require.NoError(t, err, "expected no error while encoding request body")
 
@@ -139,12 +142,13 @@ func Test_handlers_RestaurantHandler_HandleCreateRestaurant_Error(t *testing.T) 
 	handler := NewRestaurantHandler(mockservice)
 	require.NotNil(t, handler, "expected NewRestaurantHandler to return a non-nil handler")
 
-	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant").Return(
+	mockservice.On("CreateRestaurant", mock.Anything, "New Restaurant", "file.com").Return(
 		0, apperr.NewAppError(apperr.ErrInternal, "failed to create restaurant", nil)).Once()
 
 	buf := bytes.NewBuffer(nil)
 	err := encodeJson(buf, dtos.CreateRestaurantRequest{
-		Name: "New Restaurant",
+		Name:     "New Restaurant",
+		ImageURL: "file.com",
 	})
 	require.NoError(t, err, "expected no error while encoding request body")
 
@@ -200,12 +204,13 @@ func Test_handlers_RestaurantHandler_HandleCreateRestaurant_EmptyName(t *testing
 	handler := NewRestaurantHandler(mockservice)
 	require.NotNil(t, handler, "expected NewRestaurantHandler to return a non-nil handler")
 
-	mockservice.On("CreateRestaurant", mock.Anything, "").Return(
+	mockservice.On("CreateRestaurant", mock.Anything, "", "").Return(
 		0, apperr.NewAppError(apperr.ErrInvalid, "invalid empty restaurant name", nil)).Once()
 
 	buf := bytes.NewBuffer(nil)
 	err := encodeJson(buf, dtos.CreateRestaurantRequest{
-		Name: "",
+		Name:     "",
+		ImageURL: "",
 	})
 	require.NoError(t, err, "expected no error while encoding request body")
 

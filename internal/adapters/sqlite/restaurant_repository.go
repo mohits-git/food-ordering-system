@@ -39,7 +39,7 @@ func (r *RestaurantRepository) FindAllRestaurants(ctx context.Context) ([]domain
 	for rows.Next() {
 		var restaurant domain.Restaurant
 		var imageUrl sql.NullString
-		if err := rows.Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, imageUrl); err != nil {
+		if err := rows.Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, &imageUrl); err != nil {
 			return nil, HandleSQLiteError(err)
 		}
 		if imageUrl.Valid {
@@ -57,7 +57,7 @@ func (r *RestaurantRepository) FindRestaurantById(ctx context.Context, id int) (
 	query := `SELECT id, name, owner_id, image_url FROM restaurants WHERE id = ?`
 	var restaurant domain.Restaurant
 	var imageUrl sql.NullString
-	err := r.db.QueryRowContext(ctx, query, id).Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, imageUrl)
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, &imageUrl)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return domain.Restaurant{}, nil
