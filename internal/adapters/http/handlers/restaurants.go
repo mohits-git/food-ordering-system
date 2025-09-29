@@ -41,7 +41,7 @@ func (h *RestaurantHandler) HandleCreateRestaurant(w http.ResponseWriter, r *htt
 		return
 	}
 
-	id, err := h.restaurantService.CreateRestaurant(r.Context(), createReq.Name)
+	id, err := h.restaurantService.CreateRestaurant(r.Context(), createReq.Name, createReq.ImageURL)
 	if err != nil {
 		log.Println("error creating restaurant:", err)
 		if apperr.IsForbiddenError(err) {

@@ -19,7 +19,7 @@ func NewRestaurantService(restaurantRepo ports.RestaurantRepository) *Restaurant
 	}
 }
 
-func (s *RestaurantService) CreateRestaurant(ctx context.Context, restaurantName string) (int, error) {
+func (s *RestaurantService) CreateRestaurant(ctx context.Context, restaurantName string, restaurantImage string) (int, error) {
 	if restaurantName == "" {
 		return 0, apperr.NewAppError(apperr.ErrInvalid, "restaurant name cannot be empty", nil)
 	}
@@ -33,7 +33,7 @@ func (s *RestaurantService) CreateRestaurant(ctx context.Context, restaurantName
 	}
 
 	id, err := s.restaurantRepo.SaveRestaurant(ctx,
-		domain.NewRestaurant(0, restaurantName, user.UserID))
+		domain.NewRestaurant(0, restaurantName, user.UserID, restaurantImage))
 	if err != nil {
 		return 0, err
 	}

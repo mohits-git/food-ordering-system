@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL,
     owner_id INTEGER,
+    image_url TEXT,
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS menuitems (
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     available BOOLEAN DEFAULT TRUE,
+    image_url TEXT,
     restaurant_id INTEGER,
     FOREIGN KEY (restaurant_id) REFERENCES users(id)
 );

@@ -8,9 +8,10 @@ import (
 
 func Test_domain_NewRestaurant(t *testing.T) {
 	type args struct {
-		id      int
-		name    string
-		ownerID int
+		id       int
+		name     string
+		ownerID  int
+		imageUrl string
 	}
 	tests := []struct {
 		name string
@@ -20,20 +21,22 @@ func Test_domain_NewRestaurant(t *testing.T) {
 		{
 			name: "create restaurant with valid data",
 			args: args{
-				id:      1,
-				name:    "Test Restaurant",
-				ownerID: 1,
+				id:       1,
+				name:     "Test Restaurant",
+				ownerID:  1,
+				imageUrl: "file.com",
 			},
 			want: Restaurant{
-				ID:      1,
-				Name:    "Test Restaurant",
-				OwnerID: 1,
+				ID:       1,
+				Name:     "Test Restaurant",
+				OwnerID:  1,
+				ImageURL: "file.com",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewRestaurant(tt.args.id, tt.args.name, tt.args.ownerID)
+			got := NewRestaurant(tt.args.id, tt.args.name, tt.args.ownerID, tt.args.imageUrl)
 			assert.Equal(t, tt.want, got, "NewRestaurant() = %v, want %v", got, tt.want)
 		})
 	}

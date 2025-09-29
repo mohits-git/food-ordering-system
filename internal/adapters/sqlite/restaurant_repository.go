@@ -18,9 +18,9 @@ func NewRestaurantRepository(db *sql.DB) *RestaurantRepository {
 }
 
 func (r *RestaurantRepository) SaveRestaurant(ctx context.Context, restaurant domain.Restaurant) (int, error) {
-	query := `INSERT INTO restaurants (name, owner_id) VALUES (?, ?) RETURNING id`
+	query := `INSERT INTO restaurants (name, owner_id, image_url) VALUES (?, ?, ?) RETURNING id`
 	var id int
-	err := r.db.QueryRowContext(ctx, query, restaurant.Name, restaurant.OwnerID).Scan(&id)
+	err := r.db.QueryRowContext(ctx, query, restaurant.Name, restaurant.OwnerID, restaurant.ImageURL).Scan(&id)
 	if err != nil {
 		return 0, HandleSQLiteError(err)
 	}
@@ -28,7 +28,7 @@ func (r *RestaurantRepository) SaveRestaurant(ctx context.Context, restaurant do
 }
 
 func (r *RestaurantRepository) FindAllRestaurants(ctx context.Context) ([]domain.Restaurant, error) {
-	query := `SELECT id, name, owner_id FROM restaurants`
+	query := `SELECT id, name, owner_id, image_url FROM restaurants`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, HandleSQLiteError(err)
@@ -38,8 +38,12 @@ func (r *RestaurantRepository) FindAllRestaurants(ctx context.Context) ([]domain
 	var restaurants []domain.Restaurant
 	for rows.Next() {
 		var restaurant domain.Restaurant
-		if err := rows.Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID); err != nil {
+		var imageUrl sql.NullString
+		if err := rows.Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, imageUrl); err != nil {
 			return nil, HandleSQLiteError(err)
+		}
+		if imageUrl.Valid {
+			restaurant.ImageURL = imageUrl.String
 		}
 		restaurants = append(restaurants, restaurant)
 	}
@@ -50,14 +54,18 @@ func (r *RestaurantRepository) FindAllRestaurants(ctx context.Context) ([]domain
 }
 
 func (r *RestaurantRepository) FindRestaurantById(ctx context.Context, id int) (domain.Restaurant, error) {
-	query := `SELECT id, name, owner_id FROM restaurants WHERE id = ?`
+	query := `SELECT id, name, owner_id, image_url FROM restaurants WHERE id = ?`
 	var restaurant domain.Restaurant
-	err := r.db.QueryRowContext(ctx, query, id).Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID)
+	var imageUrl sql.NullString
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&restaurant.ID, &restaurant.Name, &restaurant.OwnerID, imageUrl)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return domain.Restaurant{}, nil
 		}
 		return domain.Restaurant{}, HandleSQLiteError(err)
+	}
+	if imageUrl.Valid {
+		restaurant.ImageURL = imageUrl.String
 	}
 	return restaurant, nil
 }
