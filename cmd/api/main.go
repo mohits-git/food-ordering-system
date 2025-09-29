@@ -9,6 +9,7 @@ import (
 	"github.com/mohits-git/food-ordering-system/internal/adapters/bcrypt"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/handlers"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/http/router"
+	imageupload "github.com/mohits-git/food-ordering-system/internal/adapters/image-upload"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/jwttoken"
 	"github.com/mohits-git/food-ordering-system/internal/adapters/sqlite"
 	"github.com/mohits-git/food-ordering-system/internal/services"
@@ -45,6 +46,7 @@ func main() {
 	menuItemService := services.NewMenuItemsService(menuItemRepo, restaurantRepo)
 	orderService := services.NewOrderService(orderRepo, menuItemRepo)
 	invoiceService := services.NewInvoiceService(invoiceRepo, orderRepo, menuItemRepo)
+	imageUploadService := imageupload.NewFSImageUpload("http://localhost:8080", config.UPLOAD_DIRECTORY)
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
@@ -53,6 +55,7 @@ func main() {
 	menuItemHandler := handlers.NewMenuItemHandler(menuItemService)
 	orderHandler := handlers.NewOrdersHandler(orderService)
 	invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
+	imageUploadHandler := handlers.NewImageUploadHandler(imageUploadService)
 
 	// middlewares
 	authMiddleware := handlers.NewAuthMiddleware(tokenProvider)
@@ -66,6 +69,7 @@ func main() {
 		menuItemHandler,
 		orderHandler,
 		invoiceHandler,
+		imageUploadHandler,
 	)
 
 	log.Println("Starting server on :8080")

@@ -14,8 +14,11 @@ func NewRouter(
 	menuItemHandler *handlers.MenuItemHandler,
 	orderHandler *handlers.OrdersHandler,
 	invoiceHandler *handlers.InvoiceHandler,
+	imageUploadHandler *handlers.ImageUploadHandler,
 ) http.Handler {
 	mux := http.NewServeMux()
+
+	mux.Handle("/public/images/", http.StripPrefix("/public/images/", http.FileServer(http.Dir("./public/images"))))
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -48,6 +51,9 @@ func NewRouter(
 	mux.HandleFunc("GET /api/invoices/{id}", authMiddleware.Authenticated(invoiceHandler.HandleGetInvoice))
 	mux.HandleFunc("POST /api/orders/{id}/invoices", authMiddleware.Authenticated(invoiceHandler.HandleCreateInvoice))
 	mux.HandleFunc("POST /api/invoices/{id}/pay", authMiddleware.Authenticated(invoiceHandler.HandleInvoicePayment))
+
+	mux.HandleFunc("POST /api/images", imageUploadHandler.HandleUploadImage)
+	mux.HandleFunc("DELETE /api/images", imageUploadHandler.HandleDeleteImage)
 
 	return mux
 }

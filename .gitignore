@@ -10,3 +10,6 @@ food-ordering-system.db
 
 # cover profile
 cover.out
+
+# uploaded images
+/public/images
