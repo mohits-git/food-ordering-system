@@ -39,6 +39,7 @@ func (h *ImageUploadHandler) HandleDeleteImage(w http.ResponseWriter, r *http.Re
 		return
 	}
 	url := deleteReq.ImageURL
+	// TODO: check if the user is the owner of the uploaded image
 	err = h.imageUploadService.DeleteImage(r.Context(), url)
 	if err != nil {
 		log.Println(err)

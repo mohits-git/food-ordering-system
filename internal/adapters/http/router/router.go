@@ -52,8 +52,9 @@ func NewRouter(
 	mux.HandleFunc("POST /api/orders/{id}/invoices", authMiddleware.Authenticated(invoiceHandler.HandleCreateInvoice))
 	mux.HandleFunc("POST /api/invoices/{id}/pay", authMiddleware.Authenticated(invoiceHandler.HandleInvoicePayment))
 
-	mux.HandleFunc("POST /api/images", imageUploadHandler.HandleUploadImage)
-	mux.HandleFunc("DELETE /api/images", imageUploadHandler.HandleDeleteImage)
+	// image upload endpoints
+	mux.HandleFunc("POST /api/images", authMiddleware.Authenticated(imageUploadHandler.HandleUploadImage))
+	mux.HandleFunc("DELETE /api/images", authMiddleware.Authenticated(imageUploadHandler.HandleDeleteImage))
 
 	return mux
 }

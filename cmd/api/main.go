@@ -73,7 +73,7 @@ func main() {
 	)
 
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", enableCors(mux)); err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
 }
@@ -92,4 +92,21 @@ func SetupDB(ctx context.Context, dsn string) *sql.DB {
 	}
 	log.Println("Database connected and migrated successfully")
 	return db
+}
+
+// http.Handler wrapper that adds CORS headers to responses.
+func enableCors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins, or specify a list
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true") // If you need to send cookies/auth headers
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
