@@ -18,6 +18,7 @@ func Test_router_NewRouter(t *testing.T) {
 		handlers.NewMenuItemHandler(nil),
 		handlers.NewOrdersHandler(nil),
 		handlers.NewInvoiceHandler(nil),
+		handlers.NewImageUploadHandler(nil),
 	)
 	require.NotNil(t, router, "expected NewRouter to return a non-nil router")
 
